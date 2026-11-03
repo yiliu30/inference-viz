@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viz - Create or Update Page</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; }
+h1 { margin: 0 0 16px; color: #64ffda; font-size: 26px; }
+.controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 14px 0; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+label { font-size: 12px; color: #aab4c3; }
+input, select { background: #0d1117; border: 1px solid #4d5969; border-radius: 5px; color: #e0e0e0; padding: 9px 11px; font: inherit; font-size: 14px; }
+input:read-only { opacity: .75; }
+#filenameInput { width: 260px; max-width: 100%; }
+#existingPage { width: min(420px, 100%); }
+#tokenInput { width: min(500px, 100%); }
+button, .file-label { display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid transparent; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+button { background: #238636; color: #fff; }
+button:hover { background: #2ea043; }
+button:disabled { background: #555; cursor: not-allowed; }
+.preview-btn, .secondary-btn { background: #1f6feb; color: #fff; }
+.preview-btn:hover, .secondary-btn:hover { background: #388bfd; }
+.file-label { background: #30363d; border-color: #484f58; color: #e0e0e0; }
+.file-label:hover { background: #3c444d; }
+.file-label input { display: none; }
+.token-section { padding: 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; }
+.token-section summary { cursor: pointer; color: #ccd6e3; }
+.hint, #modeNote { color: #aab4c3; font-size: 13px; line-height: 1.5; }
+.hint { margin: 8px 0 0; }
+#modeNote { margin: 2px 0 8px; }
+.container { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 4fr); gap: 16px; min-height: 580px; height: min(68vh, 900px); }
+.editor-panel, .preview-panel { display: flex; flex-direction: column; min-height: 0; }
+.panel-heading { font-size: 13px; color: #aab4c3; margin-bottom: 7px; }
+.editor-panel textarea { width: 100%; flex: 1; background: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 13px; resize: vertical; }
+.preview-panel iframe { width: 100%; flex: 1; border: 1px solid #30363d; border-radius: 6px; background: #fff; }
+.status { display: none; margin: 14px 0; padding: 12px; border-radius: 5px; overflow-wrap: anywhere; }
+.status.success { display: block; background: #0d2818; border: 1px solid #238636; color: #71e49a; }
+.status.error { display: block; background: #2d1b1b; border: 1px solid #da3633; color: #ff9290; }
+.status.info { display: block; background: #0d1b2e; border: 1px solid #1f6feb; color: #7ab5ff; }
+@media (max-width: 850px) {
+  .container { grid-template-columns: 1fr; height: auto; }
+  .editor-panel { min-height: 280px; }
+  .preview-panel { min-height: 420px; }
+  #filenameInput, #existingPage { width: 100%; }
+}
+</style>
+</head>
+<body>
+<h1>Viz - Create or Update Page</h1>
+
+<details class="token-section" id="tokenSection">
+  <summary>GitHub Token Settings</summary>
+  <div class="field" style="margin-top:10px">
+    <label for="tokenInput">Fine-grained Personal Access Token (not saved in browser storage)</label>
+    <input type="password" name="token" id="tokenInput" placeholder="github_pat_..." autocomplete="off">
+  </div>
+  <p class="hint">Use a token restricted to this repository with Contents: Read and write.
+  It stays only in this page's input until the tab is closed or refreshed.</p>
+</details>
+
+<div class="controls">
+  <div class="field">
+    <label for="existingPage">Existing visualization (optional)</label>
+    <select id="existingPage" aria-describedby="modeNote">
+      <option value="">New page</option>
+    </select>
+  </div>
+  <button type="button" class="secondary-btn" onclick="loadPages()">Refresh pages</button>
+</div>
+<p id="modeNote">Create a new visualization, or select an existing one to replace its HTML.</p>
+
+<div class="controls">
+  <label class="file-label" for="fileInput">Choose HTML File<input type="file" id="fileInput" accept=".html,text/html"></label>
+  <div class="field">
+    <label for="filenameInput">Published filename (without .html)</label>
+    <input name="filename" id="filenameInput" placeholder="e.g. attention_flow" autocomplete="off">
+  </div>
+  <button type="button" class="preview-btn" onclick="updatePreview()">Preview</button>
+  <button type="button" id="publishButton" onclick="pushToGitHub()">Publish to GitHub</button>
+</div>
+<div class="controls" style="margin: 8px 0 16px">
+  <div class="field">
+    <label for="tagsInput">Tags (comma-separated; e.g. GPU Architecture, Performance)</label>
+    <input id="tagsInput" list="tagSuggestions" placeholder="GPU Architecture, Performance" style="width: min(540px, 90vw)" autocomplete="off">
+    <datalist id="tagSuggestions"></datalist>
+  </div>
+  <button type="button" class="secondary-btn" id="saveTagsButton" onclick="saveTagsOnly()">Save Tags Only</button>
+</div>
+<p class="hint">Select an existing page to edit its tags without replacing the HTML. For new uploads, the tags are saved with the page. The index filters by these tags.</p>
+
+<div class="container">
+  <div class="editor-panel">
+    <label class="panel-heading" for="htmlEditor">HTML code</label>
+    <textarea id="htmlEditor" spellcheck="false" placeholder="Choose a replacement HTML file or paste your HTML here..."></textarea>
+  </div>
+  <div class="preview-panel">
+    <label class="panel-heading" for="previewFrame">Preview (isolated from publisher permissions)</label>
+    <iframe id="previewFrame" title="Visualization preview" sandbox="allow-scripts"></iframe>
+  </div>
+</div>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const REPO = 'yiliu30/inference-viz';
+const PATH_PREFIX = 'viz/';
+let previewUrl = null;
+let savedTags = {};
+let tagsLoaded = false;
+
+function encodeUTF8(text) {
+  return btoa(unescape(encodeURIComponent(text)));
+}
+function decodeUTF8(encoded) {
+  const bytes = Uint8Array.from(atob(encoded.replace(/\s/g, '')), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function parseTags(value) {
+  const unique = [];
+  for (const part of value.split(',')) {
+    const tag = part.trim().replace(/\s+/g, ' ');
+    if (!tag) continue;
+    if (tag.length > 40 || /[|<>\u0000-\u001f]/.test(tag)) {
+      throw new Error('Tags must be under 40 characters and cannot contain |, <, >, or control characters.');
+    }
+    if (!unique.some(existing => existing.toLowerCase() === tag.toLowerCase())) unique.push(tag);
+  }
+  if (unique.length > 8) throw new Error('Use at most 8 tags per page.');
+  return unique;
+}
+function refreshTagInput() {
+  const selected = byId('existingPage').value;
+  byId('tagsInput').value = (savedTags[selected] || []).join(', ');
+  byId('saveTagsButton').disabled = !selected || !tagsLoaded;
+}
+async function readTagManifest() {
+  let file;
+  try {
+    file = await githubAPI('data/viz_tags.json');
+  } catch (error) {
+    if (error.status === 404) return {sha: null, data: {}};
+    throw error;
+  }
+  if (!file || typeof file.sha !== 'string' || typeof file.content !== 'string') {
+    throw new Error('Unexpected tag metadata from GitHub.');
+  }
+  const parsed = JSON.parse(decodeUTF8(file.content));
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Unexpected tag manifest format.');
+  }
+  return {sha: file.sha, data: parsed};
+}
+async function loadTagManifest() {
+  try {
+    const manifest = await readTagManifest();
+    savedTags = manifest.data;
+    tagsLoaded = true;
+    const tags = [...new Set(Object.values(savedTags).flat().filter(tag => typeof tag === 'string'))].sort();
+    byId('tagSuggestions').replaceChildren(...tags.map(tag => new Option(tag, tag)));
+    refreshTagInput();
+  } catch (error) {
+    tagsLoaded = false;
+    byId('saveTagsButton').disabled = true;
+    showStatus('Could not load tags: ' + error.message, 'error');
+  }
+}
+async function putTagManifest(filename, tags) {
+  // Read immediately before writing to preserve unrelated edits from other sessions.
+  const manifest = await readTagManifest();
+  const next = {...manifest.data};
+  if (tags.length) next[filename] = tags;
+  else delete next[filename];
+  const payload = {
+    message: 'Update visualization tags for ' + filename,
+    content: encodeUTF8(JSON.stringify(next, null, 2) + '\n')
+  };
+  if (manifest.sha) payload.sha = manifest.sha;
+  await githubAPI('data/viz_tags.json', 'PUT', payload);
+  savedTags = next;
+  tagsLoaded = true;
+}
+async function saveTagsOnly() {
+  const button = byId('saveTagsButton');
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    if (!getToken()) throw new Error('Enter a GitHub token in Token Settings.');
+    if (!tagsLoaded) throw new Error('Tag metadata could not be loaded. Refresh the page.');
+    const filename = byId('existingPage').value;
+    if (!filename) throw new Error('Select an existing page to update tags.');
+    const tags = parseTags(byId('tagsInput').value);
+    showStatus('Saving tags for ' + filename + '...', 'info');
+    await putTagManifest(filename, tags);
+    showStatus('Tags saved for ' + filename + '. Filters will update after GitHub Pages deploys. The page update timestamp is unchanged.', 'success');
+  } catch (error) {
+    showStatus('Tags could not be saved: ' + error.message, 'error');
+  } finally {
+    button.disabled = !byId('existingPage').value || !tagsLoaded;
+  }
+}
+
+const byId = id => document.getElementById(id);
+
+window.addEventListener('load', () => {
+  // The old publisher stored the token in localStorage; clear that copy.
+  // Any other HTML on this same site could otherwise access the stored token.
+  try {
+    if (localStorage.getItem('github_pat')) {
+      localStorage.removeItem('github_pat');
+      showStatus('For security, the token saved by the old publisher has been cleared. Enter a restricted token to publish.', 'info');
+    }
+  } catch (_) { /* Storage may be disabled; publishing still works. */ }
+  Promise.all([loadPages(), loadTagManifest()]).catch(error => showStatus(error.message, "error"));
+});
+
+function showStatus(message, kind) {
+  const status = byId('status');
+  status.textContent = message;
+  status.className = 'status ' + kind;
+}
+
+function getToken() {
+  return byId('tokenInput').value.trim();
+}
+
+function updatePreview() {
+  const html = byId('htmlEditor').value;
+  const frame = byId('previewFrame');
+  const oldUrl = previewUrl;
+  previewUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  frame.addEventListener('load', function cleanOldUrl() {
+    frame.removeEventListener('load', cleanOldUrl);
+    if (oldUrl) URL.revokeObjectURL(oldUrl);
+  });
+  frame.src = previewUrl;
+}
+
+function updateMode() {
+  const selected = byId('existingPage').value;
+  const filename = byId('filenameInput');
+  filename.readOnly = Boolean(selected);
+  if (selected) {
+    filename.value = selected.replace(/\.html$/i, '');
+    byId('modeNote').textContent = 'Update mode: choose a replacement HTML file or paste new code. The selected filename and URL stay the same.';
+    byId('publishButton').textContent = 'Update Existing Page';
+  } else {
+    filename.value = '';
+    byId('modeNote').textContent = 'New page mode: choose an HTML file or paste code, then enter its filename.';
+    byId('publishButton').textContent = 'Publish New Page';
+  }
+  if (tagsLoaded) refreshTagInput();
+}
+
+byId('existingPage').addEventListener('change', updateMode);
+
+byId('fileInput').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    byId('htmlEditor').value = await file.text();
+    if (!byId('existingPage').value) {
+      byId('filenameInput').value = file.name.replace(/\.html?$/i, '');
+    }
+    updatePreview();
+    showStatus('Loaded ' + file.name + '. Review the preview before publishing.', 'info');
+  } catch (error) {
+    showStatus('Could not read file: ' + error.message, 'error');
+  }
+});
+
+async function githubAPI(path, method = 'GET', body) {
+  const token = getToken();
+  if (method !== 'GET' && !token) throw new Error('Enter a GitHub token in Token Settings.');
+  const headers = { Accept: 'application/vnd.github+json' };
+  if (token) headers.Authorization = 'Bearer ' + token;
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  const response = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    method, headers, body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const details = await response.json().catch(() => ({}));
+    const error = new Error(details.message || ('HTTP ' + response.status));
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
+async function loadPages(preferredFilename) {
+  const select = byId('existingPage');
+  const previous = preferredFilename || select.value;
+  try {
+    const entries = await githubAPI('static/viz');
+    if (!Array.isArray(entries)) throw new Error('Unexpected repository response');
+    const htmlPages = entries
+      .filter(page => page.type === 'file' && /\.html$/i.test(page.name) && page.name !== 'admin.html')
+      .sort((a, b) => a.name.localeCompare(b.name));
+    select.replaceChildren(new Option('New page', ''));
+    for (const page of htmlPages) select.add(new Option(page.name, page.name));
+    if (htmlPages.some(page => page.name === previous)) select.value = previous;
+    updateMode();
+  } catch (error) {
+    showStatus('Could not refresh existing pages: ' + error.message + '. You may still enter a new filename.', 'error');
+  }
+}
+
+function getPublishFilename() {
+  const selected = byId('existingPage').value;
+  const typed = byId('filenameInput').value.trim();
+  const filename = selected || (/\.html$/i.test(typed) ? typed : typed + '.html');
+  // Forbid path traversal / API URL injection, and prevent overwriting this publisher.
+  if (!typed && !selected) throw new Error('Enter a filename.');
+  if (!filename || filename === '.' || filename === '..' ||
+      /[/\\?#%\u0000-\u001f\u007f]/.test(filename) ||
+      filename.toLowerCase() === 'admin.html') {
+    throw new Error('Invalid or protected filename.');
+  }
+  return filename;
+}
+
+async function pushToGitHub() {
+  const button = byId('publishButton');
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    const html = byId('htmlEditor').value;
+    if (!html.trim()) throw new Error('Choose or paste an HTML file first.');
+    if (!tagsLoaded) throw new Error('Tag metadata has not loaded. Refresh the page.');
+    const tags = parseTags(byId('tagsInput').value);
+    if (!getToken()) throw new Error('Enter a GitHub token in Token Settings.');
+
+    const filename = getPublishFilename();
+    const selected = byId('existingPage').value;
+    const path = PATH_PREFIX + encodeURIComponent(filename);
+    showStatus('Checking the current version of ' + filename + '...', 'info');
+
+    let current = null;
+    try {
+      current = await githubAPI(path);
+    } catch (error) {
+      if (error.status !== 404) throw error;
+      if (selected) throw new Error('Selected page no longer exists. Refresh the page list before updating.');
+    }
+
+    if (current && (current.type !== 'file' || !current.sha)) {
+      throw new Error('Expected an existing file with a GitHub SHA.');
+    }
+    if (current && !confirm('Replace "' + filename + '" with the HTML in the editor?\n\nThe current version will remain recoverable from Git history.')) {
+      showStatus('Update cancelled. No files changed.', 'info');
+      return;
+    }
+
+    showStatus((current ? 'Updating ' : 'Creating ') + filename + ' in GitHub...', 'info');
+    const payload = {
+      message: (current ? 'Update ' : 'Add ') + filename + ' in viz',
+      content: encodeUTF8(html)
+    };
+    if (current) payload.sha = current.sha; // Required by GitHub to replace a file safely.
+    await githubAPI(path, 'PUT', payload);
+
+    // Always save tags after the HTML commit; a metadata failure is reported clearly.
+    try {
+      await putTagManifest(filename, tags);
+    } catch (tagError) {
+      await loadPages(filename).catch(() => {});
+      showStatus('HTML was committed successfully, but saving tags failed: ' + tagError.message +
+        '. Choose this page and click Save Tags Only to retry.', 'error');
+      return;
+    }
+    await loadPages(filename).catch(() => {});
+    showStatus((current ? 'Updated ' : 'Created ') + filename +
+      ' and its tags in GitHub. The page is at /viz/' + encodeURIComponent(filename) +
+      ' after GitHub Pages finishes deploying.', 'success');
+  } catch (error) {
+    showStatus('Publish failed: ' + error.message +
+      (error.status === 409 ? '. The page changed in GitHub; reload before retrying.' : ''), 'error');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+byId('htmlEditor').addEventListener('keydown', event => {
+  if (event.ctrlKey && event.key === 'Enter') updatePreview();
+});
+</script>
+</body>
+</html>
