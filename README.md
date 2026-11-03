@@ -1,38 +1,195 @@
+<div align="center">
+
 # Inference Viz
 
-**Understand AI inference, one interactive visualization at a time.**
+### Understand AI inference, one interactive visualization at a time.
 
-A collection of interactive HTML visualizations exploring **low-bit quantization, efficient attention, GPU architecture, kernel optimization, memory systems, and multimodal inference**.
+**Hands-on visual explanations of attention, quantization, GPU kernels, model architectures, and inference optimization.**
 
-**[Browse the live gallery](https://yiliu30.github.io/viz/)** · **[GitHub profile](https://github.com/yiliu30)**
+[**Explore the live gallery →**](https://yiliu30.github.io/viz/) · [**Browse the source →**](https://github.com/yiliu30/inference-viz/tree/main/viz) · [**Contribute →**](#contributing)
 
-## Featured demos
+<sub>40+ interactive HTML demos · Dark/light friendly · Open source</sub>
 
-| Visualization | Open live demo |
-| --- | --- |
-| BlockSelector: subblock Top-K | [Interactive demo](https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html) |
-| RainFusion MXFP8 attention | [Interactive demo](https://yiliu30.github.io/viz/rainfusion_mxfp8_interactive.html) |
-| Tiny GPU execution trace | [Interactive demo](https://yiliu30.github.io/viz/tiny_gpu_trace_explorer%20%282%29.html) |
-| Attention error lab (TRIAGE) | [Interactive demo](https://yiliu30.github.io/viz/triage_attention_error_lab.html) |
+</div>
 
-## Repository layout
+---
 
-- `viz/` — standalone interactive HTML pages (source for the live gallery).
-- `data/viz_tags.json` — topical tags used by the gallery.
-- `docs/` — publishing and migration notes.
+## Featured interactive demos
 
-## Use locally
+Real screenshots from the interactive pages. Click any preview to launch the live visualization.
 
-Open an HTML page in `viz/` in a browser. Some visualizations may use third-party browser libraries loaded from CDNs.
+<table>
+  <tr>
+<td width="33%" align="center" valign="top">
+  <a href="https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/blockselector-dark.jpg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/blockselector-light.jpg">
+      <img src="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/blockselector-dark.jpg" alt="Actual screenshot of BlockSelector interactive visualization" width="310">
+    </picture>
+  </a>
+  <br><strong>BlockSelector</strong><br>
+  <sub>How token scores become selected KV blocks</sub><br>
+  <a href="https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html">Live demo</a> · <a href="https://github.com/yiliu30/inference-viz/blob/main/viz/blockselector_subblock_topk_interactive.html">Source</a>
+</td>
+<td width="33%" align="center" valign="top">
+  <a href="https://yiliu30.github.io/viz/rainfusion_mxfp8_interactive.html">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/rainfusion-dark.jpg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/rainfusion-light.jpg">
+      <img src="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/rainfusion-dark.jpg" alt="Actual screenshot of RainFusion × MXFP8 interactive visualization" width="310">
+    </picture>
+  </a>
+  <br><strong>RainFusion × MXFP8</strong><br>
+  <sub>Explore sparse attention and low-bit numerics</sub><br>
+  <a href="https://yiliu30.github.io/viz/rainfusion_mxfp8_interactive.html">Live demo</a> · <a href="https://github.com/yiliu30/inference-viz/blob/main/viz/rainfusion_mxfp8_interactive.html">Source</a>
+</td>
+<td width="33%" align="center" valign="top">
+  <a href="https://yiliu30.github.io/viz/tiny_gpu_trace_explorer%20(2).html">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/tiny-gpu-trace-dark.jpg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/tiny-gpu-trace-light.jpg">
+      <img src="https://raw.githubusercontent.com/yiliu30/yiliu30/main/assets/viz-previews/tiny-gpu-trace-dark.jpg" alt="Actual screenshot of Tiny-GPU Trace interactive visualization" width="310">
+    </picture>
+  </a>
+  <br><strong>Tiny-GPU Trace</strong><br>
+  <sub>Step through how GPU work executes</sub><br>
+  <a href="https://yiliu30.github.io/viz/tiny_gpu_trace_explorer%20(2).html">Live demo</a> · <a href="https://github.com/yiliu30/inference-viz/blob/main/viz/tiny_gpu_trace_explorer%20(2).html">Source</a>
+</td>
+  </tr>
+</table>
 
-## Publishing
+> **Start here:** [BlockSelector](<https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html>) for sparse attention, [AutoRound](<https://yiliu30.github.io/viz/auto-round-v1.html>) for low-bit quantization, or [Tiny-GPU Trace](<https://yiliu30.github.io/viz/tiny_gpu_trace_explorer%20(2).html>) for kernel execution.
 
-The established public URL is **https://yiliu30.github.io/viz/**. Its Hugo site lives at [yiliu30/yiliu30.github.io](https://github.com/yiliu30/yiliu30.github.io).
+## Browse by topic
 
-This repository collects visualization sources separately from the rest of the blog. See [migration notes](docs/MIGRATION.md) for the sync and deployment setup.
+Choose a topic below, or [view all 43 visualizations in the live, tag-filterable gallery](https://yiliu30.github.io/viz/).
 
-## Topics
+### Attention & sparsity
 
-Quantization (INT4, FP8, MXFP4/MXFP8, NVFP4), attention and block sparsity, GPU kernels and profiling, model architecture, and KV-cache / memory behavior.
+Explore token selection, sparse attention, error propagation, and attention memory access.
 
-Created and maintained by [Yi Liu](https://github.com/yiliu30).
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **BlockSelector: From 64 Tokens to KV Blocks** | [Open demo](https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/blockselector_subblock_topk_interactive.html) |
+| **TRIAGE: Attention Error Lab** | [Open demo](https://yiliu30.github.io/viz/triage_attention_error_lab.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/triage_attention_error_lab.html) |
+| **RainFusion × MXFP8** | [Open demo](https://yiliu30.github.io/viz/rainfusion_mxfp8_interactive.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/rainfusion_mxfp8_interactive.html) |
+| **Dense vs Block-Sparse KV Prefetch** | [Open demo](https://yiliu30.github.io/viz/dense_vs_blocksparse_kv_prefetch.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/dense_vs_blocksparse_kv_prefetch.html) |
+| **MXAttention: Core Idea** | [Open demo](https://yiliu30.github.io/viz/mxattention_core_idea_with_glossary.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/mxattention_core_idea_with_glossary.html) |
+| **Sparse Attention for Video Generation** | [Open demo](https://yiliu30.github.io/viz/Sparse-Attn-Video.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/Sparse-Attn-Video.html) |
+| **HND vs NHD Sparse KV Memory Access** | [Open demo](https://yiliu30.github.io/viz/sparse_attention_layout_memory_access%20(2).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/sparse_attention_layout_memory_access%20(2).html) |
+| **Xe SDPA Forward Mainloop** | [Open demo](https://yiliu30.github.io/viz/xe_sdpa_sagev1_concrete_instance%20(1).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/xe_sdpa_sagev1_concrete_instance%20(1).html) |
+
+### Quantization & numerics
+
+See how precision formats, scales, rounding, and bit packing affect inference.
+
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **AutoRound / SignRound** | [Open demo](https://yiliu30.github.io/viz/auto-round-v1.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/auto-round-v1.html) |
+| **MXFP4 / MXFP8 Visualizer** | [Open demo](https://yiliu30.github.io/viz/mxfp4.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/mxfp4.html) |
+| **INT4 vs FP4 Encoding** | [Open demo](https://yiliu30.github.io/viz/int4-vs-fp4-encoding.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/int4-vs-fp4-encoding.html) |
+| **Quantization Granularity** | [Open demo](https://yiliu30.github.io/viz/quant-granularity.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/quant-granularity.html) |
+| **Quantization Error, Scale & Rounding** | [Open demo](https://yiliu30.github.io/viz/quant-error.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/quant-error.html) |
+| **1–8 Bit Packing Patterns** | [Open demo](https://yiliu30.github.io/viz/bit_packing_all_viz.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/bit_packing_all_viz.html) |
+| **TF32 vs FP32** | [Open demo](https://yiliu30.github.io/viz/tf32_vs_fp32_explainer.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/tf32_vs_fp32_explainer.html) |
+
+### GPU architecture & execution
+
+Understand execution flows, GPU scheduling, hardware characteristics, and software stacks.
+
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **Tiny-GPU Execution Trace Explorer** | [Open demo](https://yiliu30.github.io/viz/tiny_gpu_trace_explorer%20(2).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/tiny_gpu_trace_explorer%20(2).html) |
+| **Tiny-GPU Architecture Explorer** | [Open demo](https://yiliu30.github.io/viz/tiny_gpu_mental_model%20(3).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/tiny_gpu_mental_model%20(3).html) |
+| **Intel Xe GPU Execution Model** | [Open demo](https://yiliu30.github.io/viz/intel_gpu_execution_model%20(5).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_gpu_execution_model%20(5).html) |
+| **Intel GPU Software Stack** | [Open demo](https://yiliu30.github.io/viz/intel_gpu_stack_clean.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_gpu_stack_clean.html) |
+| **Intel Arc Pro B70 vs B60** | [Open demo](https://yiliu30.github.io/viz/b60_vs_b70_comparison.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/b60_vs_b70_comparison.html) |
+| **NVIDIA B200 Key Specs** | [Open demo](https://yiliu30.github.io/viz/b200_key_specs_node_gpu_die.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/b200_key_specs_node_gpu_die.html) |
+
+### Kernel development & performance
+
+Follow kernel optimization from execution layout through profiling and performance analysis.
+
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **Intel GPU Kernel Lifecycle** | [Open demo](https://yiliu30.github.io/viz/intel-gpu-kernel-lifecycle.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel-gpu-kernel-lifecycle.html) |
+| **Blackwell Tensor Memory (TMEM)** | [Open demo](https://yiliu30.github.io/viz/blackwell_tmem_kernel_optimization.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/blackwell_tmem_kernel_optimization.html) |
+| **Intel Xe CuTe GEMM Shape Visualizer** | [Open demo](https://yiliu30.github.io/viz/intel_xe_cute_gemm_shape_visualizer.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_cute_gemm_shape_visualizer.html) |
+| **Intel Xe CuTe: Beginner Tutorial** | [Open demo](https://yiliu30.github.io/viz/intel_xe_cute_beginner_tutorial_audited.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_cute_beginner_tutorial_audited.html) |
+| **Intel EU/XVE Stall Counter Explorer** | [Open demo](https://yiliu30.github.io/viz/intel_xe_stall_counter_visualizer%20(3).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_stall_counter_visualizer%20(3).html) |
+| **NVIDIA cp.async vs Intel Xe Prefetch** | [Open demo](https://yiliu30.github.io/viz/nvidia_cp_async_vs_intel_xe_prefetch_v2.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/nvidia_cp_async_vs_intel_xe_prefetch_v2.html) |
+| **GEMM Thread Ownership** | [Open demo](https://yiliu30.github.io/viz/step1_thread_ownership.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/step1_thread_ownership.html) |
+| **XPU joint_matrix Debug Journey** | [Open demo](https://yiliu30.github.io/viz/joint_matrix_debug.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/joint_matrix_debug.html) |
+
+### Model architectures & memory
+
+Interactive explorations of diffusion models, KV compression, model internals, and caching.
+
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **Cosmos 3 Super Architecture** | [Open demo](https://yiliu30.github.io/viz/cosmos3_architecture_visual.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/cosmos3_architecture_visual.html) |
+| **Cosmos 3: Generator & Reasoner Context** | [Open demo](https://yiliu30.github.io/viz/cosmos3_reasoner_generator_context_visual%20(2).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/cosmos3_reasoner_generator_context_visual%20(2).html) |
+| **DeepSeek-V4 CSA: 4 Tokens to 1 KV Entry** | [Open demo](https://yiliu30.github.io/viz/deepseek_v4_csa_4_to_1_visual.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/deepseek_v4_csa_4_to_1_visual.html) |
+| **Cache-DiT Workflow** | [Open demo](https://yiliu30.github.io/viz/cache_dit_workflow_visual.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/cache_dit_workflow_visual.html) |
+| **GLM-5.2 IndexShare** | [Open demo](https://yiliu30.github.io/viz/glm-5.2-sharedindexer.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/glm-5.2-sharedindexer.html) |
+| **SSA Gist Tokens** | [Open demo](https://yiliu30.github.io/viz/ssa_gist_tokens_unified_visual.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/ssa_gist_tokens_unified_visual.html) |
+
+### Algorithms & Top-K
+
+Compare selection algorithms and kernel-aware optimization strategies.
+
+| Interactive visualization | Try it | Source |
+| :-- | :-- | :-- |
+| **Real vs Approximate Top-K** | [Open demo](https://yiliu30.github.io/viz/topk_methods_comparison_real_exact.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/topk_methods_comparison_real_exact.html) |
+| **Radix Top-K Visualizer** | [Open demo](https://yiliu30.github.io/viz/topk_methods_comparison.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/topk_methods_comparison.html) |
+| **B200 Fast Top-K Optimization** | [Open demo](https://yiliu30.github.io/viz/fast_topk_clusters_exact_b200_highlight.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/fast_topk_clusters_exact_b200_highlight.html) |
+
+## How to use
+
+**Online:** Open any live demo above, or explore the [full gallery](https://yiliu30.github.io/viz/). Most pages work as interactive, standalone HTML documents.
+
+**Locally:** Clone the repo and open a page in your browser:
+
+```bash
+git clone https://github.com/yiliu30/inference-viz.git
+cd inference-viz
+# Open viz/blockselector_subblock_topk_interactive.html in your browser
+```
+
+Some demos load JavaScript libraries from external CDNs and may need an internet connection. No model weights or GPUs are required for the browser-based illustrations.
+
+## Contributing
+
+Ideas, corrections, and new visualizations are welcome.
+
+1. Open an [issue](https://github.com/yiliu30/inference-viz/issues) to propose a topic or report a problem.
+2. To submit a demo, add a self-contained `.html` file in [`viz/`](viz/).
+3. Add relevant category tags to [`data/viz_tags.json`](data/viz_tags.json).
+4. Test the page in a browser and open a pull request with a short explanation and, if useful, a screenshot.
+
+Please avoid committing credentials, private data, copyrighted assets you cannot redistribute, or dependencies that break local previews.
+
+## Publishing & repository structure
+
+```text
+inference-viz/
+├── README.md
+├── viz/                  # Interactive HTML demos and editor
+├── data/viz_tags.json    # Topic filters for the gallery
+└── docs/MIGRATION.md     # Publishing and synchronization notes
+```
+
+**Source of truth:** this repository. **Public URL:** [yiliu30.github.io/viz/](https://yiliu30.github.io/viz/). The existing [Hugo website](https://github.com/yiliu30/yiliu30.github.io) syncs the HTML pages and tags from here during deployment, so existing demo links stay unchanged. [How publishing works](docs/MIGRATION.md).
+
+The three preview images above are real screenshots hosted in [my GitHub profile's preview assets](https://github.com/yiliu30/yiliu30/tree/main/assets/viz-previews).
+
+---
+
+<div align="center">
+
+Created by [Yi Liu](https://github.com/yiliu30) · [More about my open-source work](https://github.com/yiliu30)
+
+If these visualizations help your research or engineering work, consider starring the repository to make it easier for others to discover.
+
+</div>
