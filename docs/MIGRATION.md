@@ -18,10 +18,10 @@ The personal Hugo site checks out this repository during deployment and mirrors 
 
 ## Shared GitHub navigation
 
-The Hugo website adds a compact **View source** / **Star project** bar to each published visualization automatically. Its [build-time injector](https://github.com/yiliu30/yiliu30.github.io/blob/main/scripts/inject_viz_nav.py) runs **after** Hugo builds the site and changes only the generated files under `public/viz/`.
+The Hugo website adds a compact **Back to gallery** / **Star project** bar to each published visualization automatically. Its [build-time injector](https://github.com/yiliu30/yiliu30.github.io/blob/main/scripts/inject_viz_nav.py) runs **after** Hugo builds the site and changes only the generated files under `public/viz/`.
 
 - No navigation code is added to the original `viz/*.html` sources in this repository.
-- The source link is derived from each HTML filename (including filenames containing spaces).
+- **Back to gallery** returns to the unchanged [visualization index](https://yiliu30.github.io/viz/). **Star project** links to this repository.
 - New visualizations get the same links on their first successful website deployment.
 - The editor (`viz/admin.html`) is excluded, and the injector can safely be rerun.
 
