@@ -16,6 +16,15 @@ To change tags, edit `data/viz_tags.json` (filenames must match exactly).
 
 The personal Hugo site checks out this repository during deployment and mirrors `viz/` into its `static/viz/`, then uses the tag metadata to build the gallery index. Publication on the old URL is not instantaneous: the website's scheduled GitHub Pages deployment or a manual workflow run must complete.
 
+## Shared GitHub navigation
+
+The Hugo website adds a compact **View source** / **Star project** bar to each published visualization automatically. Its [build-time injector](https://github.com/yiliu30/yiliu30.github.io/blob/main/scripts/inject_viz_nav.py) runs **after** Hugo builds the site and changes only the generated files under `public/viz/`.
+
+- No navigation code is added to the original `viz/*.html` sources in this repository.
+- The source link is derived from each HTML filename (including filenames containing spaces).
+- New visualizations get the same links on their first successful website deployment.
+- The editor (`viz/admin.html`) is excluded, and the injector can safely be rerun.
+
 ## Local Hugo preview
 
 From a clone of `yiliu30.github.io`, check out this repository at `.viz-source` and run:
