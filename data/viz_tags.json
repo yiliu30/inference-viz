@@ -117,6 +117,12 @@
     "Sparse Attention",
     "Quantization"
   ],
+  "spark_h3_attention_speedup_projection.html": [
+    "Attention",
+    "Sparse Attention",
+    "Performance",
+    "Algorithms"
+  ],
   "sparse_attention_layout_memory_access (2).html": [
     "Attention",
     "Sparse Attention",
@@ -149,13 +155,13 @@
   "topk_methods_comparison.html": [
     "Algorithms"
   ],
-  "xe_sdpa_sagev1_concrete_instance (1).html": [
-    "Attention",
-    "GPU Kernels"
-  ],
   "triage_attention_error_lab.html": [
     "Attention",
     "Sparse Attention",
     "Algorithms"
+  ],
+  "xe_sdpa_sagev1_concrete_instance (1).html": [
+    "Attention",
+    "GPU Kernels"
   ]
 }
