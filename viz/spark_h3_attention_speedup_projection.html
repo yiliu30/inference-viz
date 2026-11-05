@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a1020" />
+  <title>Spark-H3 · Idea, Reblocking & Speedup Projection</title>
+  <style>
+    :root { --bg:#090f1d; --panel:#121c2d; --panel2:#162237; --edge:#2c3950; --text:#eaf1fc; --sub:#a9bad2; --muted:#7d92af; --blue:#6f9ff8; --teal:#48cfb2; --yellow:#f5bd71; --purple:#ae9af8; --red:#ee8b94; }
+    * {box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(ellipse 900px 450px at 80% -100px,#172e48 0%,transparent 72%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.55}
+    a{color:var(--teal)}
+    .shell{max-width:1320px;padding:28px 26px 76px;margin:auto}
+    .eyebrow{text-transform:uppercase;color:var(--teal);font-size:11px;font-weight:850;letter-spacing:2px}
+    .hero{padding:16px 0 29px;border-bottom:1px solid var(--edge);display:grid;grid-template-columns:1fr auto;align-items:end;gap:15px}
+    h1{font-size:clamp(30px,4.1vw,52px);letter-spacing:-2px;line-height:1.1;margin:8px 0 10px;font-weight:850}
+    h1 em{font-style:normal;color:var(--teal)}
+    .lede{color:var(--sub);font-size:16px;max-width:780px;margin:0}
+    .pill{display:inline-flex;align-items:center;gap:7px;background:#22324b;border:1px solid #374a65;padding:7px 12px;border-radius:30px;color:#cee5f4;font-size:11px;white-space:nowrap}
+    .dot{height:7px;width:7px;background:var(--teal);border-radius:50%}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:10;background:#090f1df0;padding:12px 0 13px;border-bottom:1px solid #25334a;backdrop-filter:blur(18px);margin-bottom:24px}
+    .nav a{color:#b5c6df;text-decoration:none;padding:6px 13px;border:1px solid #2c3950;border-radius:9px;font-size:12px;transition:all .15s}
+    .nav a:hover{background:#24324b;color:white}
+    .layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.95fr);gap:18px}
+    .panel{background:linear-gradient(145deg,#151f32,#111b2c);border:1px solid var(--edge);border-radius:17px;padding:22px;box-shadow:0 16px 45px #00000017;min-width:0}
+    .panel h2{margin:0 0 6px;font-size:19px;letter-spacing:-.45px}
+    .panel h3{margin:0 0 8px;font-size:15px}
+    .panel p{margin:3px 0 12px;color:var(--sub)}
+    .desc{font-size:12px;color:var(--muted)}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}
+    .metric{border-radius:15px;background:#142139;border:1px solid #31405a;padding:15px 17px;min-width:0}
+    .metric .label{color:#afc1d9;font-size:11px;letter-spacing:.1px;line-height:1.5}
+    .metric .value{font-size:clamp(27px,3vw,37px);font-weight:850;letter-spacing:-1.5px;white-space:nowrap;line-height:1.4;margin-top:3px}
+    .metric .detail{font-size:11px;color:var(--muted)}
+    .metric.accent{border-color:#377369;background:linear-gradient(135deg,#173e3f,#162638)}
+    .accent .value{color:#6ce7c9}
+    .knobs{display:grid;grid-template-columns:1fr 1fr;gap:22px 21px;margin-top:21px}
+    .knob label{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;gap:8px;margin-bottom:8px}
+    .knob label output{font-size:14px;font-weight:800;color:#c4e8ee;font-variant-numeric:tabular-nums}
+    input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;touch-action:pan-y}
+    .knob small{display:block;color:var(--muted);font-size:10.5px;line-height:1.5;margin-top:5px}
+    .sectionbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:31px 0 12px}
+    .sectionbar h2{font-size:23px;letter-spacing:-.7px;margin:0}
+    .kicker{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);font-weight:800}
+    .button{background:#26344a;color:#e7f0ff;border:1px solid #455771;border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:650;font-size:12px}
+    .button:hover{background:#344760}
+    .sliderCaption{color:var(--muted);font-size:11px}
+    .formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0c1627;border:1px solid #293750;border-radius:12px;padding:13px;color:#b8e5d8;overflow:auto;font-size:clamp(11px,1.3vw,14px);line-height:1.9}
+    .formula .sym{color:#fff1b6}
+    .legend{display:flex;flex-wrap:wrap;gap:15px;color:var(--sub);font-size:11px;margin-top:8px}
+    .legend span{display:inline-flex;align-items:center;gap:6px}
+    .swatch{width:10px;height:10px;border-radius:3px;display:inline-block}
+    .stackLabel{display:flex;justify-content:space-between;margin:18px 0 7px;font-size:12px;color:#cddaea}
+    .track{height:32px;border-radius:8px;background:#243049;overflow:hidden;display:flex;align-items:stretch;position:relative}
+    .segment{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#08131f;min-width:0;transition:width .22s ease}
+    .segment.attn{background:var(--blue)} .segment.other{background:#8b9bad} .segment.reblock{background:var(--yellow)} .segment.routing{background:var(--purple)} .segment.permute{background:var(--red)}
+    .track-bg{height:32px;border:1px solid #35445c;border-radius:8px;background:#1b2a40;overflow:hidden}
+    .track-bg .track{border-radius:0}
+    .chartwrap{width:100%;position:relative;min-height:340px}
+    svg{display:block;width:100%;height:auto}
+    svg text{font-family:inherit;user-select:none}
+    .tablewrap{overflow-x:auto}
+    table{border-collapse:collapse;width:100%;font-size:12px;min-width:460px}
+    th,td{text-align:right;padding:10px 12px;border-bottom:1px solid #29384d;white-space:nowrap;font-variant-numeric:tabular-nums}
+    th:first-child,td:first-child{text-align:left}
+    th{color:var(--sub);font-size:11px;font-weight:700}
+    td{color:#d9e6f5}
+    tbody tr:hover{background:#1c2a40}
+    tr.highlight{background:#203d3c} tr.highlight td{font-weight:800;color:#84ecd7}
+    .steps{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:16px 0}
+    .step{border-radius:7px;border:1px solid #314159;padding:9px 2px 7px;text-align:center;background:#233048;display:flex;flex-direction:column;gap:2px}
+    .step.sparse{background:#173c3a;border-color:#32776e}
+    .step b{font-size:12px}
+    .step small{font-size:9px;color:#b0c7cf}
+    .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .note{border-left:3px solid var(--teal);background:#1230335a;padding:13px 15px;color:#c5dfe5;font-size:12px;border-radius:0 9px 9px 0}
+    .note.warn{border-left-color:var(--yellow);background:#45351c4d;color:#ebd7b9}
+    .callout{margin-top:17px;border-radius:12px;background:#18303e;border:1px solid #316477;padding:17px 19px;color:#dff3f4}
+    .callout b{color:#86e7d0}
+    .fine{font-size:11px;color:#8397ae;margin-top:13px}
+    .badge{font-size:10px;color:#99ebd7;background:#183d3d;padding:5px 9px;border-radius:7px;border:1px solid #337067;font-weight:800}
+    .scenarioRow{display:grid;grid-template-columns:150px minmax(0,1fr) 90px;gap:9px;align-items:center;margin:11px 0}
+    .scenarioRow .b{font-size:12px;color:#bfcee0;line-height:1.3}
+    .scenarioRow .track{height:19px}
+    .scenarioRow strong{text-align:right;font-size:13px;font-variant-numeric:tabular-nums}
+    .smallhead{font-size:12px;color:#b0c2da;font-weight:750}
+
+    /* Spark-Attn explainer & interactive block-routing playground */
+    .thesis{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+    .thesis .panel{position:relative;overflow:hidden}
+    .thesis .panel::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--teal)}
+    .thesis .panel.purple::before{background:var(--purple)}
+    .idea-num{font-size:11px;color:var(--teal);letter-spacing:1px;font-weight:800;text-transform:uppercase}
+    .purple .idea-num{color:#c3b5ff}
+    .idea-title{font-size:23px;font-weight:820;letter-spacing:-.8px;margin:5px 0 9px}
+    .microflow{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:14px}
+    .microflow .chip{border:1px solid #3b4b65;background:#182840;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700}
+    .microflow .arrow{color:#8498b6}
+    .explorer{margin-top:14px}
+    .stagebar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:16px 0 20px}
+    .stagebtn{border:1px solid #3a4d67;border-radius:11px;background:#182840;color:#b9cce2;padding:10px 5px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;min-height:50px}
+    .stagebtn.current{background:#20504c;border-color:#52d6bc;color:#edfffc}
+    .stagebtn:hover{background:#24435a}
+    .stagebtn .stage-n{opacity:.72;display:block;font-size:10px;letter-spacing:1px;margin-bottom:2px}
+    .exploregrid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:20px}
+    .explorevisual{min-height:295px;border:1px solid #30415a;border-radius:14px;background:#0c1729;padding:17px;min-width:0}
+    .explainer{padding:3px 0;align-self:start}
+    .explainer h3{font-size:20px;margin:2px 0 8px}
+    .explainer p{line-height:1.7}
+    .explainer ul{margin:9px 0 13px;padding-left:20px;color:#c3d5e8;font-size:12px}
+    .explainer li{margin-bottom:8px}
+    .tokenrow,.legendrow{display:flex;flex-wrap:wrap;gap:5px}
+    .token{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;width:49px;height:47px;border-radius:7px;color:#fff;font-size:12px;font-weight:800;text-shadow:0 1px 2px #0007}
+    .token small{font-size:9px;font-weight:500;opacity:.93}
+    .blockgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .tileblock{border:1px solid #45546b;border-radius:11px;padding:9px 6px;background:#1b2a3e;min-width:0}
+    .tileblock .blabel{text-align:center;font-size:10px;color:#b5c6da;font-weight:800;margin-bottom:7px}
+    .tileblock .bitems{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+    .tileblock .bitems .token{width:100%;height:43px}
+    .legendrow{margin:13px 0;gap:12px}
+    .legendchip{font-size:11px;color:#aabdd3;display:inline-flex;gap:5px;align-items:center}
+    .legendchip i{width:11px;height:11px;display:inline-block;border-radius:3px}
+    .tree-root{background:#243850;border-radius:9px;text-align:center;border:1px solid #4b6887;padding:14px;font-size:14px;font-weight:750}
+    .tree-stem{text-align:center;font-size:23px;color:#73b3d4;line-height:1.4}
+    .treeparents{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:2px 0}
+    .treeparent{background:#1b3546;border:1px solid #426477;border-radius:9px;text-align:center;padding:11px 7px;color:#cae5f0;font-size:12px}
+    .queryselect{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:11px 0}
+    .queryselect button{padding:6px 10px}
+    .queryselect button.chosen{border-color:var(--teal);background:#1c514d}
+    .affinity{width:100%;max-width:515px;display:grid;grid-template-columns:55px repeat(4,minmax(0,1fr));gap:4px}
+    .affinity .cell{min-height:39px;border-radius:5px;display:flex;justify-content:center;align-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+    .affinity .h{color:#a9bdd5;font-weight:700;background:#1d2a3b}
+    .affinity .picked{outline:2px solid var(--teal);outline-offset:-2px;font-weight:850}
+    .branchsplit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .branch{border:1px solid #43556d;padding:12px;border-radius:10px;background:#152538;min-height:112px}
+    .branch b{font-size:13px}
+    .branch p{font-size:11px;color:#a8bdd2;margin:5px 0 0}
+    .branch.exact{border-color:#398e7e}.branch.tail{border-color:#816eb6}
+    .leafstripe{height:11px;border-radius:4px;margin:8px 0 10px;background:linear-gradient(90deg,#2777ba 0 25%,#31a68c 25% 50%,#e4a440 50% 75%,#876fd0 75%)}
+    .restoreline{background:#233950;border-radius:8px;padding:12px;font-size:12px;text-align:center;margin:11px 0}
+    .keypoints{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:18px}
+    .keypoint{border:1px solid #30425c;background:#14233a;padding:13px;border-radius:10px;font-size:12px;color:#c2d3e6}
+    .keypoint b{display:block;color:#eaf6ff;font-size:13px;margin-bottom:5px}
+    .evidence{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .evidence .stat{font-size:27px;font-weight:850;color:#72e0c9;letter-spacing:-1px}
+    .source-links{font-size:11px;color:#859bb9;margin-top:13px}
+    @media(max-width:940px){.exploregrid{grid-template-columns:1fr}.thesis{grid-template-columns:1fr}}
+    @media(max-width:650px){.stagebar{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.stagebtn{font-size:9px;min-height:59px;padding:6px 3px}.blockgrid{gap:5px}.tileblock{padding:5px 3px}.tileblock .bitems{gap:2px}.tileblock .bitems .token{height:33px;font-size:10px}.token small{font-size:8px}.branchsplit,.evidence,.keypoints{grid-template-columns:1fr}}
+    footer{color:#7a92b1;font-size:11px;margin-top:28px;text-align:center}
+    @media(max-width:940px){.metrics{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero .pill{width:max-content}.cols{grid-template-columns:1fr}.shell{padding:17px 15px 60px}}
+    @media(max-width:480px){.knobs{grid-template-columns:1fr}.metrics{gap:8px}.metric{padding:12px}.metric .value{font-size:28px}.panel{padding:16px}.steps{grid-template-columns:repeat(5,1fr)}.scenarioRow{grid-template-columns:103px minmax(0,1fr) 63px}.sectionbar h2{font-size:21px}}
+    @media print{body{background:white;color:#101c2e}.panel,.metric{break-inside:avoid;box-shadow:none}.nav,.button,input{display:none!important}.panel{background:#e8eef5;color:#101c2e}.panel p,.desc,.fine{color:#344b62}.metric .value{color:#112e3f}.shell{padding:0} .formula{color:white}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">GPU kernel performance modeling / Spark-H3</div>
+      <h1>How Spark-H3 Works <em>+ Speedup Lab</em></h1>
+      <p class="lede">Explore Spark-H3’s reblocking and reweighting ideas step-by-step, then project their real impact on DiT-layer and end-to-end video latency.</p>
+    </div>
+    <div class="pill"><span class="dot"></span> Self-contained interactive HTML · no external libraries</div>
+  </header>
+  <nav class="nav" aria-label="Sections"><a href="#summary">Overview</a><a href="#idea">Spark-H3 idea</a><a href="#explorer">Interactive reblock</a><a href="#controls">Parameters</a><a href="#layer">Layer time</a><a href="#curve">Amdahl curve</a><a href="#steps">Denoising steps</a><a href="#reuse">Reblock reuse</a><a href="#takeaways">Takeaways</a></nav>
+
+  <section id="summary" aria-label="KPI summary">
+    <div class="metrics">
+      <div class="metric accent"><div class="label">Sparse layer speedup</div><div class="value" id="kLayer">1.75×</div><div class="detail" id="kLayerD">57.0 / 100 ms</div></div>
+      <div class="metric"><div class="label">Step-averaged / modeled speedup</div><div class="value" id="kE2E">1.35×</div><div class="detail">Across warmup and fallback layers</div></div>
+      <div class="metric"><div class="label">Attention-only ceiling</div><div class="value" id="kMax">2.50×</div><div class="detail">Amdahl limit without overhead</div></div>
+      <div class="metric"><div class="label">Reblock + routing overhead</div><div class="value" id="kOverhead">5.0 ms</div><div class="detail">Per optimized layer (amortized)</div></div>
+    </div>
+  </section>
+
+
+  <section class="sectionbar" id="idea"><h2>The idea behind Spark-H3</h2><span class="badge">MiniMax-H3 · adaptive block sparse attention</span></section>
+  <div class="thesis">
+    <article class="panel">
+      <div class="idea-num">01 / Exact attention branch</div>
+      <div class="idea-title">Spark-Reblock</div>
+      <p>Consecutive video positions are not necessarily similar in attention space, especially in noisy denoising steps. Reblock partitions tokens by learned Q/K affinity so a fixed Top-K block budget captures more important attention interactions.</p>
+      <div class="microflow"><span class="chip">Original Q / K</span><span class="arrow">→</span><span class="chip">Landmark tree</span><span class="arrow">→</span><span class="chip">Coherent 64-token blocks</span><span class="arrow">→</span><span class="chip">Top-K exact</span></div>
+    </article>
+    <article class="panel purple">
+      <div class="idea-num">02 / Compressed attention branch</div>
+      <div class="idea-title">Spark-Reweight</div>
+      <p>Skipping the other key blocks entirely would discard their attention mass. Spark-Reweight creates weighted K/V summaries for the unselected tail and corrects their softmax mass with a log-bias, instead of treating a simple block mean as exact.</p>
+      <div class="microflow"><span class="chip">Unselected K/V</span><span class="arrow">→</span><span class="chip">Weighted summary</span><span class="arrow">→</span><span class="chip">Log-mass correction</span><span class="arrow">→</span><span class="chip">Merge output</span></div>
+    </article>
+  </div>
+  <div class="note"><b>Put together:</b> Spark-H3 computes the most relevant blocks exactly and covers the rest using a cheaper corrected approximation. Conditioning text/video/audio K/V sinks remain exact. In the reference integration, tokens form 64-wide leaf blocks, typical Top-K video-block density is 10%, and dense warmup steps keep early evaluations exact.</div>
+
+  <section class="sectionbar" id="explorer"><h2>Interactive reblock & sparse-attention walkthrough</h2><span class="desc">16 toy tokens · 4-token blocks; real integration uses 64-token blocks</span></section>
+  <section class="panel explorer">
+    <div class="kicker">Walkthrough / step-by-step</div>
+    <div class="stagebar" id="sparkStages" role="group" aria-label="Spark reblocking visualization stages"></div>
+    <div class="exploregrid">
+      <div class="explorevisual" id="sparkVisual" aria-live="polite"></div>
+      <aside class="explainer" id="sparkExplain"></aside>
+    </div>
+    <div class="legendrow" id="sparkLegend"></div>
+    <div class="keypoints">
+      <div class="keypoint"><b>Better block recall</b>Reordering increases the chance that a single representative reflects the exact attention value of its tokens.</div>
+      <div class="keypoint"><b>Two paths, one output</b>Selected blocks use dense QK/PV; skipped blocks contribute through reweighted K/V summaries.</div>
+      <div class="keypoint"><b>Speedup has a price</b>Landmark construction, token permutation, Top-K routing, and output restoration all add overhead.</div>
+    </div>
+  </section>
+  <div class="cols" style="margin-top:18px">
+    <section class="panel">
+      <div class="kicker">Published ablation · Spark-Reblock only</div>
+      <h3>Does grouping actually improve selection?</h3>
+      <p>At the same 10% exact video-block budget, the authors report an increase in attention-mass recall for their fixed-layout BSA baseline.</p>
+      <div class="evidence">
+        <div><div class="desc">Fixed blocks</div><div class="stat" style="color:#b3c2d5">68.66%</div><div class="desc">Attention-mass recall</div></div>
+        <div><div class="desc">With reblocking</div><div class="stat">81.54%</div><div class="desc">+12.88 percentage points</div></div>
+      </div>
+      <p class="source-links">Source: <a href="https://github.com/zechengtang/Spark-H3/blob/main/docs/blogs/spark-attn/README.md" target="_blank" rel="noopener noreferrer">Spark-H3 technical blog</a>. These are published ablation results, not measurements from this simulator.</p>
+    </section>
+    <section class="panel">
+      <div class="kicker">Where this fits in one denoising step</div>
+      <h3>Repeated work within DiT</h3>
+      <div class="microflow" style="margin:9px 0 15px"><span class="chip">New layer Q/K/V</span><span class="arrow">→</span><span class="chip">Reblock*</span><span class="arrow">→</span><span class="chip">Route / Reweight</span><span class="arrow">→</span><span class="chip">Attention</span></div>
+      <p>Q/K representations change across layers and denoising evaluations. By default, eligible layers rebuild layouts. An implementation can reuse a layout across a small group of nearby layers; cross-step reuse is a separate hypothesis requiring validation.</p>
+      <p class="desc">*The <b>Reblock reuse across layers</b> slider below models how amortizing this work affects effective latency. Reusing a permutation does not reuse Q/K/V or exact Top-K routes.</p>
+    </section>
+  </div>
+
+  <div class="layout" id="controls">
+    <section class="panel">
+      <div class="kicker">01 / Tunable assumptions</div>
+      <h2>Explore the what-if scenario</h2>
+      <p>Assume a baseline layer takes <b>100 ms</b>. All percentages and overheads are relative to this illustrative baseline, not Spark-H3 measurements.</p>
+      <div class="knobs">
+        <div class="knob"><label for="share">BF16 attention fraction <output id="shareV">60%</output></label><input id="share" type="range" min="10" max="95" step="5" value="60"/><small>Other ops = GEMMs, norms, residuals, FFN, etc.</small></div>
+        <div class="knob"><label for="speed">Sparse attention kernel speedup <output id="speedV">5×</output></label><input id="speed" type="range" min="1" max="20" step="1" value="5"/><small>Kernel-only speedup before overheads</small></div>
+        <div class="knob"><label for="reblock">Reblock cost / invocation <output id="reblockV">3.0 ms</output></label><input id="reblock" type="range" min="0" max="20" step="0.5" value="3"/><small>Feature grouping, permutation construction, rearrangement</small></div>
+        <div class="knob"><label for="reuseN">Reblock reuse across layers <output id="reuseNV">1 layer</output></label><input id="reuseN" type="range" min="1" max="8" step="1" value="1"/><small>Approximate amortization: reblock cost ÷ reused layers</small></div>
+        <div class="knob"><label for="route">Top-K routing cost <output id="routeV">1.5 ms</output></label><input id="route" type="range" min="0" max="10" step="0.5" value="1.5"/><small>Proxy scoring, selecting key blocks, routing metadata</small></div>
+        <div class="knob"><label for="permute">Other permutation/restore cost <output id="permuteV">0.5 ms</output></label><input id="permute" type="range" min="0" max="10" step="0.5" value="0.5"/><small>Non-amortized Q/K/V and output layout work</small></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap">
+        <span class="desc">Fast presets:</span>
+        <div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="button" id="preset5">5× kernel</button><button type="button" class="button" id="preset10">10× kernel</button><button type="button" class="button" id="preset0">No overhead</button><button type="button" class="button" id="reset">Reset all</button></div>
+      </div>
+    </section>
+    <aside class="panel">
+      <div class="kicker">Formula / Amdahl's law</div>
+      <h2>Where speedup comes from</h2>
+      <p>Only the attention portion accelerates. All other operations still take the same time, and sparse routing adds extra work.</p>
+      <div class="formula" id="formula">
+        T<sub>optimized</sub> = T<sub>other</sub> + T<sub>attention</sub> / S + O<br />
+        <span class="sym">= 40 + 60 / 5 + 5 = 57 ms</span><br />
+        Layer speedup = 100 / 57 = 1.75×
+      </div>
+      <div class="legend"><span><i class="swatch" style="background:var(--blue)"></i> Attention</span><span><i class="swatch" style="background:#8b9bad"></i> Other layer work</span><span><i class="swatch" style="background:var(--yellow)"></i> Reblock</span><span><i class="swatch" style="background:var(--purple)"></i> Routing</span><span><i class="swatch" style="background:var(--red)"></i> Permute</span></div>
+      <div class="callout" id="insight">At 5× faster attention and 5 ms overhead, overall layer speedup is <b>1.75×</b>.</div>
+      <div class="note warn" style="margin-top:15px">If the measured “5×” already includes reblocking and routing, set all added overheads to <b>0</b> to avoid counting them twice.</div>
+    </aside>
+  </div>
+
+  <section class="sectionbar" id="layer"><h2>Layer time breakdown</h2><span class="badge">100 ms reference layer</span></section>
+  <div class="layout">
+    <section class="panel">
+      <h3>What happens inside the optimized layer?</h3>
+      <p>Bar widths use the same time scale. The remainder is the amount of time saved.</p>
+      <div class="stackLabel"><b>BF16 baseline layer</b><span>100 ms</span></div>
+      <div class="track" id="baselineBar"></div>
+      <div class="stackLabel"><b>Optimized layer</b><span id="optimizedTime">57.0 ms</span></div>
+      <div class="track-bg"><div class="track" id="optimizedBar" style="width:57%"></div></div>
+      <div class="legend"><span><i class="swatch" style="background:var(--blue)"></i> Attention</span><span><i class="swatch" style="background:#8b9bad"></i> Unchanged</span><span><i class="swatch" style="background:var(--yellow)"></i> Reblock</span><span><i class="swatch" style="background:var(--purple)"></i> Route</span><span><i class="swatch" style="background:var(--red)"></i> Other</span></div>
+      <div class="note" id="savings" style="margin-top:18px">You save 43.0 ms per eligible layer.</div>
+    </section>
+    <section class="panel">
+      <h3>5× versus 10× — same baseline</h3>
+      <p>The benefit of faster attention diminishes as other layer operations dominate.</p>
+      <div id="scenarioBars"></div>
+      <div class="desc" style="margin-top:18px">The bars are normalized to the original 100 ms baseline, using your current overhead configuration.</div>
+    </section>
+  </div>
+
+  <section class="sectionbar" id="curve"><h2>Amdahl projection curve</h2><span class="desc">Attention speedup 1× to 20×</span></section>
+  <div class="layout">
+    <section class="panel">
+      <h3>Attention-kernel speedup vs. layer speedup</h3>
+      <p>Solid line: current overhead. Dashed line: ideal zero-overhead. The vertical marker follows your selected kernel speedup.</p>
+      <div class="chartwrap"><svg id="chart" viewBox="0 0 710 365" role="img" aria-label="Line chart showing speedup according to Amdahl's law with and without overhead"></svg></div>
+      <div class="legend"><span><i class="swatch" style="background:var(--teal)"></i> Including overhead</span><span><i class="swatch" style="background:var(--blue)"></i> Zero-overhead ideal</span><span><i class="swatch" style="background:var(--yellow)"></i> Current selection</span></div>
+    </section>
+    <section class="panel">
+      <h3>Reference attention speedups</h3><p>Computed using the selected attention share and your currently configured overhead.</p>
+      <div class="tablewrap"><table><thead><tr><th>Kernel</th><th>Attn time</th><th>Layer time</th><th>Layer speedup</th></tr></thead><tbody id="speedTable"></tbody></table></div>
+      <div class="note" style="margin-top:18px"><b>Theoretical ceiling:</b> speeding up attention infinitely cannot eliminate the rest of the layer. The limit is 1 / (1 − attention fraction), ignoring overhead.</div>
+    </section>
+  </div>
+
+  <section class="sectionbar" id="steps"><h2>Denoising-step and full-model projection</h2><span class="badge">Extended Amdahl model</span></section>
+  <div class="layout">
+    <section class="panel">
+      <h3>Account for dense warmup and fallback</h3>
+      <p>Even a 2× sparse-layer improvement translates into less when some denoising steps or layers still use BF16 dense attention.</p>
+      <div class="knobs">
+        <div class="knob"><label for="stepsN">Total denoising steps <output id="stepsNV">20</output></label><input id="stepsN" type="range" min="4" max="50" step="1" value="20"/></div>
+        <div class="knob"><label for="warmup">Dense warmup steps <output id="warmupV">4</output></label><input id="warmup" type="range" min="0" max="20" step="1" value="4"/></div>
+        <div class="knob"><label for="eligible">Sparse-eligible attention layers <output id="eligibleV">75%</output></label><input id="eligible" type="range" min="0" max="100" step="5" value="75"/><small>Across the model layers, excluding permanently dense layers</small></div>
+        <div class="knob"><label for="extraFraction">Other end-to-end pipeline time <output id="extraFractionV">0%</output></label><input id="extraFraction" type="range" min="0" max="50" step="5" value="0"/><small>VAE, text encoder, loading etc. as fraction of baseline full runtime</small></div>
+      </div>
+      <div class="smallhead" style="margin-top:17px">Denoising timeline <span id="timelineInfo" style="color:var(--muted);font-weight:400"></span></div>
+      <div class="steps" id="timeline"></div>
+      <div class="legend"><span><i class="swatch" style="background:#233048"></i> Dense warmup</span><span><i class="swatch" style="background:#173c3a;border:1px solid #32776e"></i> Sparse-enabled step</span></div>
+    </section>
+    <aside class="panel">
+      <h3>Model-level prediction</h3>
+      <p>Normalized total execution time. Assumes equal baseline cost per denoising step and layer.</p>
+      <div class="metric accent" style="margin:16px 0"><div class="label">Projected full-run speedup</div><div class="value" id="totalSpeed">1.35×</div><div class="detail" id="totalD">26.2% reduction in total modeled time</div></div>
+      <div class="formula" id="stepFormula"></div>
+      <div class="note warn" style="margin-top:18px">This is a <b>projection</b>, not a measured MiniMax-H3 result. Actual layer times, sequence lengths, dense warmups, and attention ratios vary with step and block. The “other pipeline time” knob reduces the predicted full pipeline speedup.</div>
+    </aside>
+  </div>
+
+  <section class="sectionbar" id="reuse"><h2>Spark-H3 reblock reuse opportunities</h2><span class="desc">Approximate sensitivity</span></section>
+  <div class="layout">
+    <section class="panel">
+      <h3>How often must layouts be rebuilt?</h3>
+      <p>Assume the reblock process takes the same cost per invocation. Increasing the number of layers sharing a permutation amortizes that cost but may affect block quality.</p>
+      <div class="tablewrap"><table><thead><tr><th>Reuse interval</th><th>Reblock / layer</th><th>Sparse layer</th><th>Full-run speedup</th></tr></thead><tbody id="reuseTable"></tbody></table></div>
+    </section>
+    <section class="panel">
+      <h3>Layer reuse vs. cross-step reuse</h3>
+      <div style="display:grid;gap:15px;margin-top:17px">
+        <div class="note"><b>Reusing layout across layers:</b> skips some landmark and permutation construction. Must check Q/K feature changes; Top-K can still be recalculated.</div>
+        <div class="note"><b>Reusing layout across denoising steps:</b> could save more setup work, but the feature structure changes with denoising. Needs dedicated correctness and visual-quality validation.</div>
+        <div class="note warn"><b>Important:</b> A reused token permutation is not the same as reusing selected attention blocks or Q/K/V values.</div>
+      </div>
+    </section>
+  </div>
+
+  <section class="sectionbar" id="takeaways"><h2>Research interpretation</h2><span class="desc">For GPU kernel and end-to-end profiling</span></section>
+  <div class="cols">
+    <section class="panel"><h3>Measure each overhead independently</h3><p>Record baseline attention, sparse attention, reblocking, Top-K proxy + selection, layout copies and residual layer ops with GPU events. Avoid double counting asynchronous work.</p><div class="formula">T_new = T_other + T_sparse + T_reblock + T_route + T_layout</div></section>
+    <section class="panel"><h3>Compare end-to-end, not only kernel TFLOPS</h3><p>Check realized layer and video speedups, selected-block recall / attention mass, and video quality. Higher sparse-kernel throughput can be offset by reblocking overhead or lower utilization.</p><div class="formula">S_full = T_baseline_full / T_optimized_full</div></section>
+  </div>
+  <div class="callout"><b>Default example:</b> Attention is 60% of layer time. A 5× attention-only speedup gives <b>1.92×</b> ideal layer speedup. With 5 ms of overhead it becomes <b>1.75×</b>; with dense warmup steps and fallback layers, full-run gains are smaller. These are illustrative values, not measured Spark-H3 throughput.</div>
+  <footer>Spark-H3 concept + interactive toy reblocking demo + illustrative performance projection · all calculations run locally · no external libraries</footer>
+</main>
+<script>
+(function(){
+  const ids=['share','speed','reblock','reuseN','route','permute','stepsN','warmup','eligible','extraFraction'];
+  const el=id=>document.getElementById(id), num=id=>Number(el(id).value), fmt=(x,d=2)=>Number(x).toFixed(d), speedStr=x=>fmt(x,2)+'×';
+  function read(){
+    const a=num('share')/100, speed=num('speed'), rb=num('reblock'), reuse=num('reuseN'), route=num('route'), permute=num('permute'), steps=num('stepsN'), warm=Math.min(num('warmup'),steps), eligible=num('eligible')/100, extra=num('extraFraction')/100;
+    return {a,speed,rb,reuse,route,permute,steps,warm,eligible,extra,other:100*(1-a),attn:100*a};
+  }
+  function overhead(p,reuse=p.reuse){return p.rb/reuse+p.route+p.permute}
+  function layerTime(p,s=p.speed,reuse=p.reuse){return p.other+p.attn/s+overhead(p,reuse)}
+  function whole(p,t=layerTime(p)){const active=(p.steps-p.warm)/p.steps;const eligibleFraction=active*p.eligible;const coreTime=1-eligibleFraction*(1-t/100);return 1/(p.extra+(1-p.extra)*coreTime)}
+  function seg(cls,width,title){return `<div class="segment ${cls}" style="width:${Math.max(0,width)}%" title="${title}">${width>8?fmt(width,1)+'%':''}</div>`}
+  function drawBars(p){
+    const t=layerTime(p), oh=overhead(p);let scale=Math.max(100,t), attn=p.attn/p.speed, rb=p.rb/p.reuse;
+    el('baselineBar').innerHTML=seg('attn',p.attn/scale*100,'BF16 attention '+fmt(p.attn)+' ms')+seg('other',p.other/scale*100,'Other '+fmt(p.other)+' ms');
+    el('optimizedBar').style.width=fmt(t/scale*100,3)+'%';
+    el('optimizedBar').innerHTML=seg('attn',attn/t*100,'Sparse attention '+fmt(attn)+' ms')+seg('other',p.other/t*100,'Other '+fmt(p.other)+' ms')+seg('reblock',rb/t*100,'Reblock '+fmt(rb)+' ms')+seg('routing',p.route/t*100,'Routing '+fmt(p.route)+' ms')+seg('permute',p.permute/t*100,'Other permutation '+fmt(p.permute)+' ms');
+    el('optimizedTime').textContent=fmt(t,1)+' ms';
+    const diff=100-t;
+    el('savings').innerHTML=diff>=0?`<b>${fmt(diff,1)} ms saved</b> per sparse-eligible layer (${fmt(diff)}% latency reduction).`:`<b>${fmt(-diff,1)} ms slower</b> per sparse-eligible layer. Overheads outweigh attention savings.`;
+    const sc=[['BF16 baseline',1,0],['5× · ideal',5,0],['5× · overhead',5,oh],['10× · ideal',10,0],['10× · overhead',10,oh]];
+    const maxTime=Math.max(100,...sc.map(x=>p.other+p.attn/x[1]+x[2]));
+    el('scenarioBars').innerHTML=sc.map(([name,s,o])=>{
+      let time=p.other+p.attn/s+o;return `<div class="scenarioRow"><span class="b">${name}</span><div class="track-bg" style="height:19px"><div class="track" style="height:19px;width:${fmt(time/maxTime*100,2)}%;background:${o>0?'#4e9b93':s===1?'#8090a4':'#638cd5'}"></div></div><strong>${fmt(100/time,2)}×</strong></div>`;
+    }).join('');
+  }
+  function chart(p){
+    const svg=el('chart'), left=57,right=688,top=20,bottom=311;
+    const ymax=Math.max(2.6,Math.min(11,1/(1-p.a)*1.1));
+    const y=v=>bottom-(v-0.7)/(ymax-0.7)*(bottom-top),x=s=>left+(s-1)/19*(right-left);
+    let lines='';for(let i=1;i<=5;i++){const value=.7+i*(ymax-.7)/5;lines+=`<line x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}" stroke="#2e4057" stroke-dasharray="3 5"/><text x="${left-12}" y="${y(value)+4}" text-anchor="end" fill="#92a9c6" font-size="12">${fmt(value,1)}×</text>`}
+    for(const s of [1,2,5,10,15,20])lines+=`<text x="${x(s)}" y="${bottom+23}" text-anchor="middle" fill="#92a9c6" font-size="12">${s}×</text>`;
+    const pts=(o)=>Array.from({length:96},(_,i)=>{const s=1+i/5;return `${i?'L':'M'}${fmt(x(s),2)},${fmt(y(100/(p.other+p.attn/s+o)),2)}`}).join(' ');
+    const oy=100/layerTime(p), px=x(p.speed), py=y(oy), ideal=100/(p.other+p.attn/p.speed);
+    svg.innerHTML=`${lines}<line x1="${left}" x2="${right}" y1="${bottom}" y2="${bottom}" stroke="#5c7290"/><line x1="${left}" x2="${left}" y1="${top}" y2="${bottom}" stroke="#5c7290"/><path d="${pts(0)}" fill="none" stroke="#6f9ff8" stroke-width="2.6" stroke-dasharray="7 6"/><path d="${pts(overhead(p))}" fill="none" stroke="#48cfb2" stroke-width="3.4"/><line x1="${px}" x2="${px}" y1="${top}" y2="${bottom}" stroke="#f5bd71" stroke-dasharray="4 7" opacity=".8"/><circle cx="${px}" cy="${py}" r="7" stroke="#102132" stroke-width="3" fill="#f5bd71"/><circle cx="${px}" cy="${y(ideal)}" r="5" fill="#6f9ff8"/><rect x="${Math.min(right-114,Math.max(left+5,px+14))}" y="${Math.max(top+5,py-49)}" width="113" height="36" rx="7" fill="#23364b" stroke="#4b647e"/><text x="${Math.min(right-114,Math.max(left+5,px+14))+56}" y="${Math.max(top+5,py-49)+14}" text-anchor="middle" fill="#dce9f8" font-size="11">${p.speed}× attention</text><text x="${Math.min(right-114,Math.max(left+5,px+14))+56}" y="${Math.max(top+5,py-49)+28}" text-anchor="middle" fill="#7ee7cf" font-size="12" font-weight="750">${speedStr(oy)} layer</text><text x="${(left+right)/2}" y="357" text-anchor="middle" fill="#92a9c6" font-size="13">Attention kernel speedup</text><text transform="translate(16,185) rotate(-90)" text-anchor="middle" fill="#92a9c6" font-size="13">Layer speedup</text>`;
+  }
+  function tables(p){
+    const rows=[1,2,3,5,10,20];
+    el('speedTable').innerHTML=rows.map(s=>{const t=layerTime(p,s);return `<tr class="${s===p.speed?'highlight':''}"><td>${s}×</td><td>${fmt(p.attn/s,1)} ms</td><td>${fmt(t,1)} ms</td><td>${fmt(100/t,2)}×</td></tr>`}).join('')+`<tr><td>∞ (ideal)</td><td>0.0 ms</td><td>${fmt(p.other,1)} ms</td><td>${fmt(100/p.other,2)}×</td></tr>`;
+    el('reuseTable').innerHTML=[1,2,4,8].map(n=>{const t=layerTime(p,p.speed,n);return `<tr class="${n===p.reuse?'highlight':''}"><td>Every ${n} layer${n>1?'s':''}</td><td>${fmt(p.rb/n,2)} ms</td><td>${fmt(100/t,2)}×</td><td>${fmt(whole(p,t),2)}×</td></tr>`}).join('');
+  }
+  function steps(p,t){
+    const active=p.steps-p.warm, sparseFrac=(active/p.steps)*p.eligible;
+    el('timeline').innerHTML=Array.from({length:p.steps},(_,i)=>`<div class="step ${i>=p.warm?'sparse':''}" title="Step ${i+1}: ${i>=p.warm?'Sparse eligible':'Dense warmup'}"><b>${i+1}</b><small>${i>=p.warm?'sparse':'dense'}</small></div>`).join('');
+    el('timelineInfo').textContent=`· ${p.warm} dense + ${active} sparse-capable steps`;
+    const coreT=100*(1-sparseFrac*(1-t/100)); const finalT=p.extra*100+(1-p.extra)*coreT;
+    el('totalSpeed').textContent=speedStr(100/finalT);
+    el('totalD').textContent=`${fmt(100-finalT,1)}% less modeled full-run time`;
+    el('stepFormula').innerHTML=`Eligible layer-time share = (${p.steps} − ${p.warm}) / ${p.steps} × ${fmt(p.eligible*100,0)}%<br/> = <span class="sym">${fmt(sparseFrac*100,1)}%</span><br/><br/>Model runtime = 100 − ${fmt(sparseFrac*100,1)}% × (100 − ${fmt(t,1)})<br/> = <span class="sym">${fmt(coreT,1)} normalized units</span><br/><br/>After extra pipeline share = <span class="sym">${fmt(finalT,1)} units</span>`;
+  }
+  function update(){
+    const p=read(),t=layerTime(p),speedup=100/t,oh=overhead(p);
+    for(const [i,v] of [['shareV',fmt(p.a*100,0)+'%'],['speedV',p.speed+'×'],['reblockV',fmt(p.rb,1)+' ms'],['reuseNV',p.reuse+' layer'+(p.reuse!==1?'s':'')],['routeV',fmt(p.route,1)+' ms'],['permuteV',fmt(p.permute,1)+' ms'],['stepsNV',p.steps],['warmupV',p.warm],['eligibleV',fmt(p.eligible*100,0)+'%'],['extraFractionV',fmt(p.extra*100,0)+'%']])el(i).textContent=v;
+    el('kLayer').textContent=speedStr(speedup);el('kLayerD').textContent=fmt(t,1)+' ms / 100 ms';
+    el('kE2E').textContent=speedStr(whole(p,t));el('kMax').textContent=speedStr(1/(1-p.a));el('kOverhead').textContent=fmt(oh,1)+' ms';
+    el('formula').innerHTML=`T<sub>new</sub> = Other + Attention / S + Overhead<br/> = ${fmt(p.other,1)} + ${fmt(p.attn,1)} / ${p.speed} + ${fmt(oh,2)}<br/> = <span class="sym">${fmt(t,2)} ms</span><br/>Layer speedup = 100 / ${fmt(t,2)} = <span class="sym">${speedStr(speedup)}</span>`;
+    el('insight').innerHTML=`At <b>${p.speed}×</b> faster attention and <b>${fmt(oh,1)} ms</b> overhead, the layer runs <b>${speedStr(speedup)}</b> as fast. Without overhead it would reach <b>${speedStr(100/(p.other+p.attn/p.speed))}</b>.`;
+    drawBars(p);chart(p);tables(p);steps(p,t);
+  }
+  ids.forEach(i=>el(i).addEventListener('input',update));
+  const change=(obj)=>{Object.entries(obj).forEach(([id,value])=>el(id).value=value);update()};
+  el('preset5').addEventListener('click',()=>change({speed:5}));
+  el('preset10').addEventListener('click',()=>change({speed:10}));
+  el('preset0').addEventListener('click',()=>change({reblock:0,route:0,permute:0}));
+  el('reset').addEventListener('click',()=>change({share:60,speed:5,reblock:3,reuseN:1,route:1.5,permute:.5,stepsN:20,warmup:4,eligible:75,extraFraction:0}));
+  update();
+})();
+</script>
+
+<script>
+// Interactive visual explanation uses a deliberately small, deterministic toy partition.
+// It does NOT run MiniMax-H3 activations or the actual landmark algorithm.
+(function(){
+  const tokens=[0,2,1,3, 1,0,3,2, 3,1,2,0, 2,3,0,1].map((g,i)=>({g,id:i+1}));
+  const colors=['#3c84cf','#26a88e','#d99d45','#9679d7'];
+  const names=['Cluster 1','Cluster 2','Cluster 3','Cluster 4'];
+  const stages=[['Original order','Raster tokens'],['Landmark tree','Partition'],['Reblocked Q / K','Permute'],['Top-K routing','Exact + tail'],['Reweight & restore','Merge']];
+  const qorder=[2,0,3,1],korder=[0,1,2,3];
+  const sim=[[.96,.23,.17,.12],[.21,.93,.26,.19],[.17,.31,.95,.24],[.16,.20,.23,.96]];
+  let stage=0,focus=0,k=1;
+  const $=id=>document.getElementById(id);
+  const tok=t=>`<div class="token" style="background:${colors[t.g]}"><span>F${t.g+1}</span><small>#${t.id}</small></div>`;
+  const block=(arr,label)=>`<div class="tileblock"><div class="blabel">${label}</div><div class="bitems">${arr.map(tok).join('')}</div></div>`;
+  const legend=$('sparkLegend');legend.innerHTML=names.map((n,g)=>`<span class="legendchip"><i style="background:${colors[g]}"></i>${n}</span>`).join('')+'<span class="legendchip">Feature colors are illustrative, not semantic labels</span>';
+  function draw(){
+    $('sparkStages').innerHTML=stages.map(([title,subtitle],i)=>`<button type="button" class="stagebtn ${i===stage?'current':''}" data-stage="${i}" aria-pressed="${i===stage}"><span class="stage-n">0${i+1}</span>${title}</button>`).join('');
+    const original=Array.from({length:4},(_,i)=>block(tokens.slice(i*4,i*4+4),'Raster block '+(i+1))).join('');
+    const reordered=order=>order.map((g,i)=>block(tokens.filter(t=>t.g===g),'Block '+(i+1)+' · F'+(g+1))).join('');
+    let visual='',explain='';
+    if(stage===0){
+      visual=`<div class="smallhead">Original video token order (4 × 4 grid)</div><div class="blockgrid" style="margin:12px 0">${original}</div><div class="note warn">Each raster block contains a mix of unrelated projected features; a single block mean may be a weak routing proxy.</div>`;
+      explain=`<div class="kicker">Stage 01</div><h3>Start from a spatial/temporal ordering</h3><p>Video tokens arrive in a fixed raster-like layout. Their physical neighbors may have quite different Q/K attention preferences, particularly early in denoising.</p><ul><li>Blue/gold/purple/green stand for four <em>feature-similarity</em> clusters, not actual video colors.</li><li>We have 4 tokens per block for visibility; Spark-H3 uses 64.</li></ul>`;
+    } else if(stage===1){
+      visual=`<div class="tree-root">16 projected token features</div><div class="tree-stem">↓ split using landmarks + cosine-based scores</div><div class="treeparents"><div class="treeparent">Parent group 1<br><b>F1 + F2</b></div><div class="treeparent">Parent group 2<br><b>F3 + F4</b></div></div><div class="tree-stem">↓ recursive capacity-constrained partition</div><div class="blockgrid">${reordered(korder)}</div>`;
+      explain=`<div class="kicker">Stage 02</div><h3>Find coherent token groups</h3><p>Actual Spark-Reblock uses representative landmarks and a hierarchical tree, with cosine-style affinity informed by opposite-side Q/K statistics. The tree splits groups until leaves match the block size.</p><ul><li>Integrated defaults: 32 midpoint landmarks, up to 16 fanout, leaf size 64.</li><li>This diagram uses hand-chosen groups, not the real clustering calculation.</li></ul>`;
+    } else if(stage===2){
+      visual=`<div class="smallhead">K/V packed together in feature-group order</div><div class="blockgrid" style="margin:8px 0 15px">${reordered(korder)}</div><div class="smallhead">Q packed with its own illustrative ordering</div><div class="blockgrid" style="margin:8px 0 15px">${reordered(qorder)}</div><div class="restoreline">K/V permutation: ${korder.flatMap(g=>tokens.filter(t=>t.g===g).map(t=>t.id)).join(', ')}</div>`;
+      explain=`<div class="kicker">Stage 03</div><h3>Make new physical Q / K blocks</h3><p>Tokens in each feature group are packed contiguously. Q and K can be reblocked independently using different feature statistics. V must follow the K permutation, preserving key/value pairing.</p><ul><li>Neighboring blocks in the packed layout do <b>not</b> imply neighboring video positions.</li><li>Spark disables the usual positional local band when Q/K are independently permuted.</li></ul>`;
+    } else if(stage===3){
+      const selected=[0,1,2,3].sort((a,b)=>sim[focus][b]-sim[focus][a]).slice(0,k);
+      const mat=`<div class="affinity"><div class="cell h">Q \ K</div>${[0,1,2,3].map(i=>`<div class="cell h">F${i+1}</div>`).join('')}${[0,1,2,3].map(q=>`<div class="cell h">F${q+1}</div>`+[0,1,2,3].map(key=>{const s=sim[q][key];return `<div class="cell ${focus===q&&selected.includes(key)?'picked':''}" style="background:rgba(38,175,149,${(.1+s*.42).toFixed(2)})">${s.toFixed(2)}</div>`}).join('')).join('')}</div>`;
+      visual=`<div class="smallhead">Choose a Q-block, and the exact K-block budget</div><div class="queryselect">${[0,1,2,3].map(i=>`<button type="button" class="button ${i===focus?'chosen':''}" data-focus="${i}">Q F${i+1}</button>`).join('')}<button type="button" class="button" id="kToggle">Top ${k} ▾</button></div>${mat}<div class="branchsplit"><div class="branch exact"><b>Exact QK / PV</b><p>Selected: ${selected.map(i=>'F'+(i+1)).join(', ')}</p></div><div class="branch tail"><b>Compressed tail</b><p>Skipped: ${[0,1,2,3].filter(i=>!selected.includes(i)).map(i=>'F'+(i+1)).join(', ')||'none'}</p></div></div>`;
+      explain=`<div class="kicker">Stage 04</div><h3>Select important blocks</h3><p>A block router scores candidate key blocks using cheap representatives and computes the highest-scoring ones exactly. A fixed Top-K ratio caps the exact video-block budget.</p><ul><li><b>Outlined cells:</b> exact attention for your selected query block.</li><li><b>Other cells:</b> go to the cheaper approximate branch—not necessarily zeroed out.</li><li>Real Spark uses a 10% video-block Top-K default; this 4-block demo uses Top ${k}.</li></ul>`;
+    } else {
+      visual=`<div class="smallhead">Combine exact attention with corrected compressed tail</div><div class="branchsplit"><div class="branch exact"><b>Selected video blocks</b><div class="leafstripe"></div><p>Full K and V per selected token → exact QK / PV.</p></div><div class="branch tail"><b>Other video blocks</b><div class="leafstripe" style="opacity:.40"></div><p>Weighted K/V summaries + log-mass bias → approximate contribution.</p></div></div><div class="tree-stem">↓ shared softmax / combined output</div><div class="restoreline">Output in reordered Q sequence:<br><b>${qorder.flatMap(g=>tokens.filter(t=>t.g===g).map(t=>'o'+t.id)).join(' · ')}</b></div><div class="tree-stem">↓ inverse Q permutation</div><div class="restoreline">Original video order restored:<br><b>${tokens.map(t=>'o'+t.id).join(' · ')}</b></div>`;
+      explain=`<div class="kicker">Stage 05</div><h3>Reweight the skipped tail and restore Q</h3><p>Spark-Reweight uses a global video-query anchor per head to create weighted K/V summaries and a log-mass correction for omitted blocks. Exact and compressed contributions are then normalized together.</p><ul><li>It avoids treating the simple unweighted block mean as an exact stand-in for all logits.</li><li>The result must be unpermuted to the original query-token order before the next layer.</li><li>Extra work appears in the speedup calculator as <b>routing</b>, <b>reblock</b>, and <b>permutation</b> costs.</li></ul><a href="#controls" class="button" style="display:inline-block;text-decoration:none;margin-top:9px">Model the overhead ↓</a>`;
+    }
+    $('sparkVisual').innerHTML=visual;
+    $('sparkExplain').innerHTML=explain;
+    document.querySelectorAll('[data-stage]').forEach(b=>b.addEventListener('click',()=>{stage=Number(b.dataset.stage);draw()}));
+    document.querySelectorAll('[data-focus]').forEach(b=>b.addEventListener('click',()=>{focus=Number(b.dataset.focus);draw()}));
+    const toggle=$('kToggle');if(toggle)toggle.addEventListener('click',()=>{k=k===3?1:k+1;draw()});
+  }
+  draw();
+})();
+</script>
+</body></html>
