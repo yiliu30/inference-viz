@@ -65,7 +65,7 @@ Real screenshots from the interactive pages. Click any preview to launch the liv
 
 ## Browse by topic
 
-Choose a topic below, or [view all 43 visualizations in the live, tag-filterable gallery](https://yiliu30.github.io/viz/).
+Choose a topic below, or [view all 44 visualizations in the live, tag-filterable gallery](https://yiliu30.github.io/viz/).
 
 ### Attention & sparsity
 
@@ -73,6 +73,7 @@ Explore token selection, sparse attention, error propagation, and attention memo
 
 | Interactive visualization | Try it | Source |
 | :-- | :-- | :-- |
+| **Spark-H3: Reblocking & Attention Speedup** | [Open demo](https://yiliu30.github.io/viz/spark_h3_attention_speedup_projection.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/spark_h3_attention_speedup_projection.html) |
 | **BlockSelector: From 64 Tokens to KV Blocks** | [Open demo](https://yiliu30.github.io/viz/blockselector_subblock_topk_interactive.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/blockselector_subblock_topk_interactive.html) |
 | **TRIAGE: Attention Error Lab** | [Open demo](https://yiliu30.github.io/viz/triage_attention_error_lab.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/triage_attention_error_lab.html) |
 | **RainFusion × MXFP8** | [Open demo](https://yiliu30.github.io/viz/rainfusion_mxfp8_interactive.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/rainfusion_mxfp8_interactive.html) |
