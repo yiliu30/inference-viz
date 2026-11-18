@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive Roofline model for non-causal prefill attention: choose Q/K/V types, sequence length, head dimension, tiling and GPU specifications." />
+  <title>Attention Roofline Explorer</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0a0e18; --panel:#111827; --panel-2:#151e30; --panel-3:#1b273e; --border:#2c3950; --text:#ecf2fa; --muted:#9bacc5; --quiet:#73839d; --teal:#47e0c5; --blue:#74a7ff; --orange:#ffb86b; --red:#ff7285; --green:#4ee4a4; --shadow:0 14px 50px rgba(0,0,0,.16); }
+    * { box-sizing: border-box; }
+    body { margin:0; background:radial-gradient(ellipse at 65% -15%,#172849 0,transparent 43%),var(--bg); color:var(--text); font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-variant-numeric:tabular-nums; min-height:100vh; }
+    button,input,select{font:inherit;}
+    button{cursor:pointer;}
+    .wrap{max-width:1530px;margin:0 auto;padding:30px clamp(16px,3vw,42px) 50px;}
+    .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;}
+    .brand{display:flex;align-items:center;gap:13px;}
+    .brandmark{width:44px;height:44px;border:1px solid #3b5d78;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(71,224,197,.2),rgba(116,167,255,.16));box-shadow:0 0 30px rgba(71,224,197,.08);}
+    .brand h1{margin:0;font-size:24px;letter-spacing:-.035em;font-weight:760;}
+    .eyebrow{font-size:11px;letter-spacing:.14em;font-weight:750;color:var(--teal);text-transform:uppercase;margin:0 0 2px;}
+    .intro{margin:7px 0 0;color:var(--muted);max-width:875px;font-size:13px;}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    button.preset,button.ghost{border:1px solid var(--border);background:#182236;color:var(--text);padding:8px 12px;border-radius:9px;font-size:12px;font-weight:650;transition:.15s;}
+    button.preset:hover,button.ghost:hover{border-color:var(--teal);background:#203049;}
+    button.preset.active{background:rgba(71,224,197,.13);color:var(--teal);border-color:#347e7c;}
+    select:disabled{cursor:not-allowed;opacity:.77;border-color:#354760;background:#19243a;}
+    .preset-lead{font-size:11px;color:var(--muted);line-height:1.45;}
+    .comparison{padding:18px 21px 15px;overflow-x:auto;}
+    .comparison h2{margin-bottom:5px;}
+    .comparison-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:13px;min-width:635px;}
+    .comparison-table th{padding:10px 11px;text-align:right;border-bottom:1px solid #384662;color:#abbcd2;white-space:nowrap;font-weight:650;font-size:11px;}
+    .comparison-table td{padding:13px 11px;text-align:right;border-bottom:1px solid #24334a;white-space:nowrap;}
+    .comparison-table th:first-child,.comparison-table td:first-child{text-align:left;}
+    .comparison-table tr:last-child td{border-bottom:0;}
+    .comparison-table tr.selected{background:rgba(71,224,197,.07);}
+    .comparison-table .dtype-name{font-weight:700;color:#e7f1ff;}
+    .comparison-table .small{display:block;color:#8fa0b9;font-size:10px;margin-top:3px;font-weight:400;}
+    .comp-status{font-size:11px;font-weight:650;}
+    .comp-status.mem{color:var(--orange)}.comp-status.compute{color:var(--green)}
+    .compare-select{border:1px solid #4c657f;border-radius:7px;background:#1b2b43;color:#e8f5ff;padding:5px 9px;font-size:11px;cursor:pointer;}
+    .comparison-caption{margin:9px 0 0;font-size:10px;color:var(--quiet);line-height:1.4;}
+    .layout{display:grid;grid-template-columns:minmax(288px,340px) minmax(0,1fr);gap:18px;align-items:start;}
+    .panel{background:linear-gradient(180deg,rgba(24,34,53,.9),rgba(15,23,37,.96));border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);}
+    .controls{padding:21px;}
+    .group{padding-bottom:21px;margin-bottom:20px;border-bottom:1px solid var(--border);}
+    .group:last-child{padding:0;margin:0;border:0;}
+    .group-title{font-size:11px;letter-spacing:.115em;text-transform:uppercase;font-weight:800;color:#8b9cba;display:flex;align-items:center;gap:8px;margin:0 0 13px;}
+    .num{font-size:10px;border:1px solid #485974;border-radius:5px;color:var(--blue);padding:2px 5px;}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 10px;}
+    .field{display:flex;flex-direction:column;min-width:0;gap:6px;}
+    label{font-size:11px;color:#b0bfda;font-weight:620;}
+    .field small{color:var(--quiet);font-size:10px;line-height:1.3;}
+    .field.wide{grid-column:1/-1;}
+    input,select{min-width:0;width:100%;padding:10px 10px;background:#0b1525;border:1px solid #33415b;border-radius:8px;color:var(--text);outline:none;font-size:13px;}
+    input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(71,224,197,.1);}
+    .with-unit{position:relative;}
+    .with-unit input{padding-right:66px;}
+    .unit{position:absolute;right:10px;top:11px;pointer-events:none;font-size:11px;color:#8ca0bb;}
+    .hint{font-size:11px;color:var(--muted);line-height:1.5;margin:10px 0 0;}
+    .warning{display:none;margin:12px 0 0;border:1px solid #86533f;border-radius:8px;padding:9px;background:rgba(255,184,107,.09);font-size:11px;color:#ffd097;}
+    .warning.show{display:block;}
+    .main{min-width:0;display:flex;flex-direction:column;gap:16px;}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+    .metric{padding:17px 17px 16px;min-width:0;position:relative;overflow:hidden;}
+    .metric:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,#52647f);opacity:.9;}
+    .metric-label{font-size:11px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px;}
+    .metric-value{font-size:clamp(20px,2vw,29px);letter-spacing:-.045em;font-weight:790;white-space:nowrap;margin:7px 0 2px;}
+    .metric-sub{font-size:10px;color:var(--quiet);}
+    .chart-panel{padding:20px 22px 14px;}
+    .section-header{display:flex;align-items:start;justify-content:space-between;gap:15px;flex-wrap:wrap;}
+    h2{font-size:16px;letter-spacing:-.015em;margin:0;font-weight:750;}
+    .subheading{margin:4px 0 0;color:var(--muted);font-size:12px;}
+    .legend{display:flex;gap:17px;align-items:center;flex-wrap:wrap;font-size:11px;color:#b5c3db;padding-top:3px;}
+    .legend-item{display:flex;align-items:center;gap:7px;}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--color);display:inline-block;box-shadow:0 0 10px color-mix(in srgb,var(--color),transparent 65%);}
+    .roofline-svg{display:block;width:100%;height:auto;min-height:345px;margin:13px auto 0;overflow:visible;}
+    .chart-footer{border-top:1px solid var(--border);padding:13px 0 0;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;color:var(--muted);font-size:11px;}
+    .pill{padding:6px 10px;border-radius:99px;background:rgba(71,224,197,.1);border:1px solid rgba(71,224,197,.28);color:var(--teal);font-weight:750;font-size:11px;}
+    .pill.memory{color:var(--orange);background:rgba(255,184,107,.1);border-color:rgba(255,184,107,.32);}
+    .pill.ridge{color:var(--blue);background:rgba(116,167,255,.1);border-color:rgba(116,167,255,.3);}
+    .details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;}
+    .detail{padding:19px 20px;}
+    .detail h3{margin:0 0 14px;font-size:13px;display:flex;align-items:center;gap:8px;}
+    .swatch{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--swatch);}
+    .detail dl{display:grid;grid-template-columns:1fr auto;gap:9px 10px;margin:0;align-items:baseline;font-size:12px;}
+    .detail dt{color:var(--muted);}
+    .detail dd{margin:0;text-align:right;font-weight:700;color:#eaf1fc;}
+    .detail .condition{color:var(--orange);}
+    .explain{padding:19px 22px;}
+    .explain h3{font-size:14px;margin:0 0 11px;}
+    .math{background:#0b1424;border:1px solid #273650;border-radius:8px;padding:11px 13px;color:#d4e2f9;font:12px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;overflow:auto;white-space:nowrap;}
+    .formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .formula-label{color:var(--muted);font-size:11px;margin:0 0 5px;}
+    .notes{font-size:11px;line-height:1.65;color:var(--muted);margin:12px 0 0;}
+    footer{font-size:11px;color:var(--quiet);margin-top:20px;}
+    @media(max-width:1100px){.layout{grid-template-columns:minmax(265px,300px) minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{padding:16px}.roofline-svg{min-height:275px;}}
+    @media(max-width:760px){.wrap{padding:22px 14px 34px}.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-panel{padding:16px 12px 12px}.details-grid,.formula-grid{grid-template-columns:1fr}.brand h1{font-size:21px}.roofline-svg{min-height:250px}.controls{padding:17px}.chart-footer{justify-content:flex-start}}
+    @media(max-width:420px){.metric{padding:13px}.metric-value{font-size:21px}.legend{gap:9px}.roofline-svg{min-height:210px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div>
+      <div class="brand">
+        <div class="brandmark" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 20L10 10L15 15L23 5" stroke="#47e0c5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 5H23V11" stroke="#47e0c5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><p class="eyebrow">Kernel Performance Lab</p><h1>Attention Roofline Explorer</h1></div>
+      </div>
+      <p class="intro">Non-causal, fused prefill attention · 75,600-token × 40-head × d128 examples · interactive HBM roofline · no external dependencies</p>
+    </div>
+    <div class="top-actions" aria-label="Configuration presets">
+      <button type="button" class="preset active" data-preset="bf16" aria-pressed="true">BF16 Q/K/V</button>
+      <button type="button" class="preset" data-preset="fp8" aria-pressed="false">FP8 Q/K/V</button>
+      <button type="button" class="preset" data-preset="mxfp4" aria-pressed="false">MXFP4 Q/K/V</button>
+      <button type="button" class="ghost" id="reset" title="Restore N=75,600, 40 heads, d=128, BF16 QKV and example GPU specs">Reset example</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel controls" aria-label="Model settings">
+      <section class="group">
+        <h2 class="group-title"><span class="num">01</span> Attention shape</h2>
+        <div class="field-grid">
+          <div class="field wide"><label for="seq">Sequence length (Q = KV)</label><input id="seq" type="number" min="1" max="2000000" step="1" value="75600" /></div>
+          <div class="field"><label for="dim">Head dimension</label><input id="dim" type="number" min="1" max="4096" step="1" value="128" /></div>
+          <div class="field"><label for="tile">Q tile size (Bq)</label><input id="tile" type="number" min="1" max="8192" step="1" value="128" /></div>
+          <div class="field"><label for="qheads">Query heads (Hq)</label><input id="qheads" type="number" min="1" max="4096" step="1" value="40" /></div>
+          <div class="field"><label for="kvheads">KV heads (Hkv)</label><input id="kvheads" type="number" min="1" max="4096" step="1" value="40" /></div>
+          <div class="field wide"><label for="gshare">GQA reuse inside tiled kernel</label>
+            <select id="gshare"><option value="none">None — KV traffic per Q head</option><option value="group">Share KV within each GQA group</option></select>
+            <small>Sharing is only modeled if Hq is divisible by Hkv.</small>
+          </div>
+        </div>
+        <div id="warning" class="warning" role="status"></div>
+      </section>
+      <section class="group">
+        <h2 class="group-title"><span class="num">02</span> Tensor storage dtype</h2>
+        <div class="field-grid">
+          <div class="field"><label for="qtype">Query (Q)</label><select id="qtype" class="dtype"></select></div>
+          <div class="field"><label for="ktype">Key (K)</label><select id="ktype" class="dtype"></select></div>
+          <div class="field"><label for="vtype">Value (V)</label><select id="vtype" class="dtype"></select></div>
+          <div class="field"><label for="otype">Output (O) — fixed BF16</label><select id="otype" class="dtype" disabled aria-label="Output dtype fixed at BF16"></select></div>
+        </div>
+        <p class="hint">The three presets change Q/K/V storage dtypes only; <strong>O always stays BF16</strong>. Each MXFP4 element is modeled as 0.5 B data + 1/32 B E8M0 scale metadata. Dtypes affect modeled HBM traffic; set the appropriate TFLOP/s for your QK/PV compute path.</p>
+      </section>
+      <section class="group">
+        <h2 class="group-title"><span class="num">03</span> GPU specifications</h2>
+        <div class="field-grid">
+          <div class="field"><label for="bw">HBM bandwidth</label><div class="with-unit"><input id="bw" type="number" min="0.001" max="10000" step="0.1" value="1.3" /><span class="unit">TB/s</span></div></div>
+          <div class="field"><label for="peak">Compute throughput</label><div class="with-unit"><input id="peak" type="number" min="0.001" max="100000" step="1" value="2600" /><span class="unit">TFLOP/s</span></div></div>
+        </div>
+        <p class="hint">Default <strong>1.3 TB/s and 2,600 TFLOP/s are illustrative</strong>, not a named GPU specification. Changing BF16 → FP8 → MXFP4 does not automatically adjust peak compute throughput; enter device-specific throughput for a fair comparison.</p>
+      </section>
+      <section class="group">
+        <h2 class="group-title"><span class="num">04</span> Model assumptions</h2>
+        <p class="hint">Fused non-causal attention, no scores/probabilities written to HBM. Count <strong>2 FLOPs per multiply-accumulate</strong>; QKᵀ and PV only. Excludes softmax, scaling, masking, layout conversion, padding, and register/SLM constraints.</p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section class="metrics" aria-label="Key roofline metrics">
+        <div class="panel metric" style="--c:var(--blue)"><div class="metric-label">GPU ridge point</div><div class="metric-value" id="ridge">2,000</div><div class="metric-sub">FLOPs / HBM byte</div></div>
+        <div class="panel metric" style="--c:var(--orange)"><div class="metric-label">Tiled HBM intensity</div><div class="metric-value" id="tiled-ai">124.1</div><div class="metric-sub">FLOPs / HBM byte</div></div>
+        <div class="panel metric" style="--c:var(--teal)"><div class="metric-label">Ideal HBM intensity</div><div class="metric-value" id="ideal-ai">2,048</div><div class="metric-sub">FLOPs / HBM byte</div></div>
+        <div class="panel metric" style="--c:var(--green)"><div class="metric-label">Tiled roofline ceiling</div><div class="metric-value" id="tiled-performance">496.5</div><div class="metric-sub">TFLOP/s (upper bound)</div></div>
+      </section>
+
+      <section class="panel comparison" aria-label="Preset dtype comparison">
+        <div class="section-header">
+          <div><h2>Three dtype examples · BF16 output</h2><p class="subheading">Same sequence length, head dimension, tile size, head counts, and GPU specifications</p></div>
+          <span class="preset-lead" id="shape-summary">N = 75,600 · Hq/Hkv = 40/40 · d = 128 · Bq = 128</span>
+        </div>
+        <table class="comparison-table">
+          <thead><tr><th>Q/K/V storage</th><th>Tiled AI<br>FLOPs/B</th><th>Ideal AI<br>FLOPs/B</th><th>Tiled ceiling<br>TFLOP/s</th><th>Roofline regime</th><th>Preset</th></tr></thead>
+          <tbody id="preset-rows"></tbody>
+        </table>
+        <p class="comparison-caption">The comparison keeps the same entered GPU TFLOP/s for all three dtypes; hardware throughput for BF16, FP8 and MXFP4 may differ. Tiled HBM assumes repeated K/V traffic, while the ideal model assumes one HBM read per Q/K/V element.</p>
+      </section>
+
+      <section class="panel chart-panel" aria-label="Roofline chart">
+        <div class="section-header">
+          <div><h2>GPU Roofline Model</h2><p class="subheading">Log–log axes · HBM bandwidth roof · model predictions</p></div>
+          <div class="legend" aria-label="Chart legend">
+            <span class="legend-item"><span class="dot" style="--color:var(--orange)"></span>Tiled HBM</span>
+            <span class="legend-item"><span class="dot" style="--color:var(--teal)"></span>Ideal HBM</span>
+            <span class="legend-item"><span class="dot" style="--color:var(--blue)"></span>GPU roof</span>
+          </div>
+        </div>
+        <svg id="plot" class="roofline-svg" viewBox="0 0 860 430" role="img" aria-label="Roofline plot of achieved upper-bound TFLOPs per second against FLOPs per byte, including tiled and ideal attention markers"></svg>
+        <div class="chart-footer">
+          <span>Ridge point = compute TFLOP/s ÷ HBM TB/s. Marker height is <strong>min(peak TFLOP/s, AI × bandwidth)</strong>.</span>
+          <span id="verdict" class="pill memory">Tiled: memory-bound</span>
+        </div>
+      </section>
+
+      <section class="details-grid" aria-label="Traffic and performance calculations">
+        <div class="panel detail">
+          <h3><span class="swatch" style="--swatch:var(--orange)"></span>Tiled attention · repeated KV reads</h3>
+          <dl>
+            <dt>Matrix FLOPs (QKᵀ + PV)</dt><dd id="flops-tiled">—</dd>
+            <dt>HBM traffic</dt><dd id="bytes-tiled">—</dd>
+            <dt>Roofline performance</dt><dd id="perf-tiled">—</dd>
+            <dt>Bandwidth lower-bound time</dt><dd id="mem-tiled">—</dd>
+            <dt>Compute lower-bound time</dt><dd id="comp-tiled">—</dd>
+            <dt>Predicted bottleneck</dt><dd id="bound-tiled">—</dd>
+          </dl>
+        </div>
+        <div class="panel detail">
+          <h3><span class="swatch" style="--swatch:var(--teal)"></span>Ideal HBM reuse · tensor read/write once</h3>
+          <dl>
+            <dt>Matrix FLOPs (QKᵀ + PV)</dt><dd id="flops-ideal">—</dd>
+            <dt>HBM traffic</dt><dd id="bytes-ideal">—</dd>
+            <dt>Roofline performance</dt><dd id="perf-ideal">—</dd>
+            <dt>Bandwidth lower-bound time</dt><dd id="mem-ideal">—</dd>
+            <dt>Compute lower-bound time</dt><dd id="comp-ideal">—</dd>
+            <dt>Predicted bottleneck</dt><dd id="bound-ideal">—</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="panel explain">
+        <h3>How the model is calculated</h3>
+        <div class="formula-grid">
+          <div><p class="formula-label">Matrix arithmetic (non-causal)</p><div class="math">FLOPs = 4 × Hq × N² × d</div></div>
+          <div><p class="formula-label">Ridge point</p><div class="math">AI_ridge = GPU_TFLOPs / HBM_TBps</div></div>
+          <div><p class="formula-label">Ideal HBM bytes</p><div class="math">N × d × [Hq(sQ + sO) + Hkv(sK + sV)]</div></div>
+          <div><p class="formula-label">Tiled HBM bytes</p><div class="math">N × d × [Hq(sQ + sO) + ceil(N/Bq) × (Hq/r)(sK + sV)]</div></div>
+        </div>
+        <p class="notes"><strong>N</strong> = shared Q/KV sequence length; <strong>d</strong> = head dimension; <strong>s*</strong> = stored bytes per element, including modeled MX scale metadata; <strong>r</strong> = modeled KV sharing across query heads (1 by default, or Hq/Hkv if enabled). The tiled estimate assumes KV blocks are re-fetched from <em>HBM</em> for each query tile per sharing group; actual L2 reuse can make HBM AI significantly higher. Head dimension cancels from AI in this simplified model but still changes FLOPs, bytes, and predicted time. In practice, GPU utilization, softmax, and on-chip memory effects can reduce achieved performance far below the roof.</p>
+      </section>
+    </main>
+  </div>
+  <footer>Standalone offline HTML · Values are analytical estimates rather than benchmark measurements · Built for attention kernel design exploration</footer>
+</div>
+<script>
+(function(){
+'use strict';
+const types = [
+  ['fp32','FP32 · 4 B',4], ['bf16','BF16 · 2 B',2], ['fp16','FP16 · 2 B',2],
+  ['fp8','FP8 · 1 B',1], ['int8','INT8 · 1 B',1],
+  ['mxfp8','MXFP8 · 1.0313 B',1+1/32], ['mxfp4','MXFP4 · 0.5313 B',0.5+1/32],
+  ['int4','INT4 · 0.5 B',.5]
+];
+const dtypeBytes = Object.fromEntries(types.map(([v,,b])=>[v,b]));
+const $ = id => document.getElementById(id);
+const ids = ['seq','dim','tile','qheads','kvheads','gshare','qtype','ktype','vtype','otype','bw','peak'];
+const defaults={seq:75600,dim:128,tile:128,qheads:40,kvheads:40,gshare:'none',qtype:'bf16',ktype:'bf16',vtype:'bf16',otype:'bf16',bw:1.3,peak:2600};
+const presets={
+  bf16:{qtype:'bf16',ktype:'bf16',vtype:'bf16'},
+  fp8:{qtype:'fp8',ktype:'fp8',vtype:'fp8'},
+  mxfp4:{qtype:'mxfp4',ktype:'mxfp4',vtype:'mxfp4'}
+};
+const presetLabels={bf16:'BF16 Q/K/V',fp8:'FP8 Q/K/V',mxfp4:'MXFP4 Q/K/V'};
+for(const id of ['qtype','ktype','vtype','otype']) {
+  $(id).innerHTML = types.map(([v,label])=>`<option value="${v}">${label}</option>`).join('');
+}
+function load(values){ ids.forEach(id=>{$(id).value=values[id]}); update(); }
+function activePreset(){
+  for(const [name,p] of Object.entries(presets)){
+    if(Object.entries(p).every(([key,val])=>$(key).value===val)) return name;
+  }
+  return null;
+}
+function choosePreset(name){
+  if(!presets[name])return;
+  for(const [key,val] of Object.entries(presets[name]))$(key).value=val;
+  $('otype').value='bf16';
+  update();
+}
+function syncPresetButtons(){
+  const name=activePreset();
+  for(const btn of document.querySelectorAll('.preset')){
+    const selected=name===btn.dataset.preset;
+    btn.classList.toggle('active',selected);
+    btn.setAttribute('aria-pressed',String(selected));
+  }
+}
+function nfmt(x,digits=1){if(!Number.isFinite(x))return '—';return x.toLocaleString('en-US',{maximumFractionDigits:digits});}
+function amount(x,unit){ if(!Number.isFinite(x))return '—'; if(x>=1e12)return nfmt(x/1e12,2)+' T'+unit; if(x>=1e9)return nfmt(x/1e9,2)+' G'+unit; if(x>=1e6)return nfmt(x/1e6,2)+' M'+unit; if(x>=1e3)return nfmt(x/1e3,2)+' K'+unit; return nfmt(x,2)+' '+unit;}
+function bytes(x){if(x>=1e12)return nfmt(x/1e12,2)+' TB';if(x>=1e9)return nfmt(x/1e9,2)+' GB';if(x>=1e6)return nfmt(x/1e6,2)+' MB';if(x>=1e3)return nfmt(x/1e3,2)+' KB';return nfmt(x,2)+' B';}
+function duration(x){if(x>=1)return nfmt(x,3)+' s';if(x>=1e-3)return nfmt(x*1000,3)+' ms';if(x>=1e-6)return nfmt(x*1e6,3)+' µs';return nfmt(x*1e9,3)+' ns';}
+function ticks(min,max){let vals=[];for(let p=Math.floor(Math.log10(min))-1;p<=Math.ceil(Math.log10(max))+1;p++){for(let m of [1,2,5]){let t=m*Math.pow(10,p);if(t>=min*(1-1e-8)&&t<=max*(1+1e-8))vals.push(t)}}return vals;}
+function tickLabel(x){if(x>=1e6)return nfmt(x/1e6,1)+'M';if(x>=1e3)return nfmt(x/1e3,1)+'k';if(x<1)return nfmt(x,2);return nfmt(x,1)}
+function bound(ai,ridge){return ai>ridge*(1+1e-9)?'Compute-bound':ai<ridge*(1-1e-9)?'Memory-bound':'At ridge';}
+function renderPlot(v){
+ const svg=$('plot'),W=860,H=430,L=81,R=32,T=29,B=67,PW=W-L-R,PH=H-T-B;
+ const minAI=Math.min(0.5,v.ridge/200,v.tiledAI/12,v.idealAI/12);
+ const maxAI=Math.max(4096,v.ridge*5,v.idealAI*3,v.tiledAI*3, minAI*100);
+ const minP=Math.max(0.001, Math.min(v.peak/400,v.bw*minAI/1.8));
+ const maxP=v.peak*1.7;
+ const X=x=>L+(Math.log10(x)-Math.log10(minAI))/(Math.log10(maxAI)-Math.log10(minAI))*PW;
+ const Y=y=>T+PH-(Math.log10(y)-Math.log10(minP))/(Math.log10(maxP)-Math.log10(minP))*PH;
+ const clamp=(a,l,h)=>Math.max(l,Math.min(h,a));
+ let s=`<defs><linearGradient id="memoryarea" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#74a7ff" stop-opacity=".08"/><stop offset="1" stop-color="#74a7ff" stop-opacity="0"/></linearGradient></defs>`;
+ s+=`<rect x="${L}" y="${T}" width="${PW}" height="${PH}" rx="2" fill="#0c1423" stroke="#29384f"/>`;
+ for(const x of ticks(minAI,maxAI)){const xx=X(x);s+=`<line x1="${xx}" y1="${T}" x2="${xx}" y2="${T+PH}" stroke="#27344b" stroke-width="1" opacity=".8"/><text x="${xx}" y="${T+PH+21}" fill="#98aac5" font-size="11" text-anchor="middle">${tickLabel(x)}</text>`}
+ for(const y of ticks(minP,maxP)){const yy=Y(y);s+=`<line x1="${L}" y1="${yy}" x2="${L+PW}" y2="${yy}" stroke="#27344b" stroke-width="1" opacity=".8"/><text x="${L-12}" y="${yy+4}" fill="#98aac5" font-size="11" text-anchor="end">${tickLabel(y)}</text>`}
+ const roof=(x)=>Math.min(v.peak,v.bw*x);
+ const roofPts= [minAI,v.ridge,maxAI].filter((x,i,arr)=>x>=minAI&&x<=maxAI&&arr.indexOf(x)===i).sort((a,b)=>a-b);
+ const roofCoords=roofPts.map(x=>[X(x),Y(clamp(roof(x),minP,maxP))]);
+ const path=roofCoords.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ');
+ s+=`<path d="${path}" stroke="#74a7ff" fill="none" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+ let ry=Y(v.peak),rx=X(v.ridge);
+ if(v.ridge>=minAI && v.ridge<=maxAI)s+=`<line x1="${rx}" y1="${ry}" x2="${rx}" y2="${T+PH}" stroke="#7c92b2" stroke-width="1.5" stroke-dasharray="6 6" opacity=".85"/><circle cx="${rx}" cy="${ry}" r="5" fill="#74a7ff" stroke="#0c1423" stroke-width="2"/>`;
+ s+=`<text x="${clamp(X(Math.sqrt(minAI*Math.max(minAI,v.ridge))),L+105,L+PW-145)}" y="${T+38}" fill="#9db0ca" font-size="12" font-weight="700">MEMORY-LIMITED</text>`;
+ s+=`<text x="${clamp(X(Math.sqrt(Math.min(maxAI,v.ridge)*maxAI)),L+145,L+PW-100)}" y="${Math.max(T+23,ry-14)}" fill="#9db0ca" font-size="12" text-anchor="middle" font-weight="700">COMPUTE-LIMITED</text>`;
+ s+=`<text x="${L+PW/2}" y="${H-12}" fill="#c8d4e5" font-size="13" text-anchor="middle">Arithmetic intensity (FLOPs / HBM byte)  →</text>`;
+ s+=`<text transform="translate(23 ${T+PH/2}) rotate(-90)" fill="#c8d4e5" font-size="13" text-anchor="middle">Throughput (TFLOP/s)  →</text>`;
+ for(const p of [{name:'Tiled',ai:v.tiledAI,color:'#ffb86b',dy:20},{name:'Ideal',ai:v.idealAI,color:'#47e0c5',dy:-14}]){
+   const xp=X(p.ai),py=Y(roof(p.ai)),vline=Y(Math.max(minP,roof(p.ai)));
+   s+=`<line x1="${xp}" y1="${vline}" x2="${xp}" y2="${T+PH}" stroke="${p.color}" opacity=".58" stroke-width="1.6" stroke-dasharray="5 6"/>`;
+   s+=`<circle cx="${xp}" cy="${py}" r="10" fill="${p.color}" opacity=".13"/><circle cx="${xp}" cy="${py}" r="5.5" fill="${p.color}" stroke="#0d1726" stroke-width="2"><title>${p.name}: AI ${nfmt(p.ai,2)} FLOPs/B; roof ${nfmt(roof(p.ai),2)} TFLOP/s</title></circle>`;
+   const labelX=clamp(xp, L+43, L+PW-43), labelY=clamp(py+p.dy,T+18,T+PH-9);
+   s+=`<text x="${labelX}" y="${labelY}" font-size="12" font-weight="800" text-anchor="middle" fill="${p.color}">${p.name}</text>`;
+ }
+ svg.innerHTML=s;
+}
+function renderComparison(context){
+ const {N,d,Bq,Hq,Hkv,bw,peak,reuse,nTiles,FLOPs}=context;
+ const sqo=dtypeBytes.bf16;
+ const names=['bf16','fp8','mxfp4'];
+ const selected=activePreset();
+ $('shape-summary').textContent=`N = ${nfmt(N,0)} · Hq/Hkv = ${Hq}/${Hkv} · d = ${d} · Bq = ${Bq}`;
+ $('preset-rows').innerHTML=names.map(name=>{
+   const si=dtypeBytes[name];
+   const idealBytes=N*d*(Hq*(si+sqo)+Hkv*(si+si));
+   const tiledBytes=N*d*(Hq*(si+sqo)+nTiles*(Hq/reuse)*(si+si));
+   const idealAI=FLOPs/idealBytes;
+   const tiledAI=FLOPs/tiledBytes;
+   const ceiling=Math.min(peak,bw*tiledAI);
+   const status=bound(tiledAI,peak/bw);
+   const cls=status==='Memory-bound'?'mem':'compute';
+   return `<tr class="${selected===name?'selected':''}"><td class="dtype-name">${presetLabels[name]}<span class="small">Q/K/V: ${nfmt(si,5)} B/element · O: BF16 (2 B)</span></td><td>${nfmt(tiledAI,1)}</td><td>${nfmt(idealAI,1)}</td><td>${nfmt(ceiling,1)}</td><td><span class="comp-status ${cls}">${status}</span></td><td><button type="button" class="compare-select" data-compare="${name}" aria-label="Apply ${presetLabels[name]} preset">Apply</button></td></tr>`;
+ }).join('');
+}
+function update(){
+ const raw=id=>Number($(id).value);
+ const read=(id,fallback)=>{const x=raw(id);return Number.isFinite(x)&&x>0?x:fallback;};
+ const N=Math.max(1,Math.floor(read('seq',1))),d=Math.max(1,Math.floor(read('dim',1))),Bq=Math.max(1,Math.floor(read('tile',1)));
+ const Hq=Math.max(1,Math.floor(read('qheads',1))),Hkv=Math.max(1,Math.floor(read('kvheads',1)));
+ const bw=read('bw',0.001),peak=read('peak',0.001);
+ const sq=dtypeBytes[$('qtype').value],sk=dtypeBytes[$('ktype').value],sv=dtypeBytes[$('vtype').value],so=dtypeBytes[$('otype').value];
+ const groupValid=Hkv<=Hq&&Hq%Hkv===0, wantsShare=$('gshare').value==='group';
+ const reuse=wantsShare&&groupValid?Hq/Hkv:1, nTiles=Math.ceil(N/Bq);
+ const FLOPs=4*Hq*N*N*d;
+ const idealBytes=N*d*(Hq*(sq+so)+Hkv*(sk+sv));
+ const tiledBytes=N*d*(Hq*(sq+so)+nTiles*(Hq/reuse)*(sk+sv));
+ const idealAI=FLOPs/idealBytes,tiledAI=FLOPs/tiledBytes,ridge=peak/bw;
+ const idealPerf=Math.min(peak,bw*idealAI),tiledPerf=Math.min(peak,bw*tiledAI);
+ const computeSec=FLOPs/(peak*1e12),idealMemSec=idealBytes/(bw*1e12),tiledMemSec=tiledBytes/(bw*1e12);
+ const w=$('warning');let warning='';
+ if(!groupValid)warning='For conventional MHA/GQA, Hq must be an integer multiple of Hkv. The chart still shows this analytical shape, but GQA tiled reuse is disabled.';
+ if(Bq>N)warning+=(warning?' ':'')+'Bq exceeds N, so the model treats this as one Q tile.';
+ w.textContent=warning;w.classList.toggle('show',Boolean(warning));
+ $('ridge').textContent=nfmt(ridge,2);$('tiled-ai').textContent=nfmt(tiledAI,2);$('ideal-ai').textContent=nfmt(idealAI,2);$('tiled-performance').textContent=nfmt(tiledPerf,2);
+ const set=(id,value)=>{$(id).textContent=value};
+ set('flops-tiled',amount(FLOPs,'FLOPs'));set('flops-ideal',amount(FLOPs,'FLOPs'));
+ set('bytes-tiled',bytes(tiledBytes));set('bytes-ideal',bytes(idealBytes));
+ set('perf-tiled',nfmt(tiledPerf,2)+' TFLOP/s');set('perf-ideal',nfmt(idealPerf,2)+' TFLOP/s');
+ set('mem-tiled',duration(tiledMemSec));set('mem-ideal',duration(idealMemSec));
+ set('comp-tiled',duration(computeSec));set('comp-ideal',duration(computeSec));
+ set('bound-tiled',bound(tiledAI,ridge));set('bound-ideal',bound(idealAI,ridge));
+ const verdict=$('verdict');const b=bound(tiledAI,ridge);
+ verdict.textContent='Tiled: '+b.toLowerCase();verdict.className='pill '+(b==='Memory-bound'?'memory':b==='At ridge'?'ridge':'');
+ renderPlot({tiledAI,idealAI,ridge,peak,bw});
+ renderComparison({N,d,Bq,Hq,Hkv,bw,peak,reuse,nTiles,FLOPs});
+ syncPresetButtons();
+}
+for(const id of ids)$(id).addEventListener('input',()=>{ $('otype').value='bf16'; update(); });
+for(const btn of document.querySelectorAll('.preset'))btn.addEventListener('click',()=>choosePreset(btn.dataset.preset));
+$('preset-rows').addEventListener('click',e=>{
+  const button=e.target.closest('button[data-compare]');
+  if(button)choosePreset(button.dataset.compare);
+});
+$('reset').addEventListener('click',()=>load(defaults));
+load(defaults);
+})();
+</script>
+</body>
+</html>
