@@ -3,6 +3,11 @@
     "Attention",
     "Sparse Attention"
   ],
+  "attention_roofline_explorer.html": [
+    "Attention",
+    "Performance",
+    "GPU Kernels"
+  ],
   "auto-round-v1.html": [
     "Quantization"
   ],
