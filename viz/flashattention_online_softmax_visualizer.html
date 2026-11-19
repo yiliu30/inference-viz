@@ -20,43 +20,33 @@
 .fact{border-left:3px solid var(--purple);background:#faf7ff;padding:10px 12px;border-radius:0 8px 8px 0;margin-top:10px}.fact strong{color:#633b97}.fact p{margin:2px 0 0;font-size:12px;color:#665d77}.edu-list{padding-left:17px;color:#4f5f78;font-size:12.5px;margin:8px 0}.edu-list li{margin:6px 0}.section-divider{height:1px;background:#e4e9f2;margin:16px 0}.details-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}.details-steps div{padding:9px;border-radius:9px;background:#f8faff;border:1px solid #e3e9f4}.details-steps b{display:block;font-size:12px}.details-steps span{font-size:11px;color:#748198}.result{padding:12px 14px;border-radius:9px;background:#eefaf2;border:1px solid #b2e2c5;color:#17663d;font-weight:650}.tag{display:inline-block;border-radius:6px;padding:3px 6px;font:700 10px ui-monospace,monospace}.tag.amber{background:#fff3d7;color:#9c6400}.tag.teal{background:#daf6ef;color:#067a70}.help{cursor:help;border-bottom:1px dotted currentColor}
 @media(max-width:1100px){.layout{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr;gap:16px}.right .panel{margin:0}.right .panel:first-child{grid-column:1/-1}}@media(max-width:750px){.shell{padding:10px}.hero{padding:22px 18px;border-radius:16px}.panel{padding:15px}.matrix-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.state-grid{grid-template-columns:1fr 1fr}.right{display:block}.right .panel{margin-bottom:16px}.old-new{grid-template-columns:1fr}.stage-grid{grid-template-columns:repeat(5,1fr)}.stage{padding:7px 3px;min-height:60px}.stage strong{font-size:10px}.tile small{font-size:9px}.num-matrix .numcell{font-size:11px;min-height:30px}.control-bar{gap:6px}.btn{padding:8px 9px}}
 
-/* Consistent colors identify the same operation group in both pseudocode views and the KV timeline. */
-.group-load{--group-color:#65c1f1;--group-tint:rgba(101,193,241,.12)}
-.group-qk{--group-color:#7d9eff;--group-tint:rgba(125,158,255,.12)}
-.group-max{--group-color:#e9b65d;--group-tint:rgba(233,182,93,.13)}
-.group-exp{--group-color:#c7a0ff;--group-tint:rgba(199,160,255,.13)}
+/* Color classes are scoped to the second execution breakdown ONLY. */
+.group-load{--group-color:#65c1f1;--group-tint:rgba(101,193,241,.13)}
+.group-qk{--group-color:#7d9eff;--group-tint:rgba(125,158,255,.14)}
+.group-max{--group-color:#e9b65d;--group-tint:rgba(233,182,93,.12)}
+.group-exp{--group-color:#c7a0ff;--group-tint:rgba(199,160,255,.14)}
 .group-sum{--group-color:#6bdbc6;--group-tint:rgba(107,219,198,.12)}
 .group-pv{--group-color:#84db8f;--group-tint:rgba(132,219,143,.12)}
 .group-acc{--group-color:#ffa581;--group-tint:rgba(255,165,129,.12)}
 .group-norm{--group-color:#d4dd71;--group-tint:rgba(212,221,113,.13)}
-.micro-code-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:14px 0 8px}
+.micro-code-pane{border:1px solid #dfe7f4;border-radius:13px;padding:14px;min-width:0;background:linear-gradient(145deg,#fff,#f9fbff)}
+.micro-code-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 11px}
 .micro-code-intro strong{color:#243959;font-size:13px}
 .micro-code-intro span{color:#687c9b;font-size:11px}
-.micro-code-groups{background:#101b2c;border-radius:12px;padding:10px;display:grid;gap:8px;max-height:710px;overflow-y:auto;overscroll-behavior:contain}
-.micro-code-group{border:1px solid color-mix(in srgb,var(--group-color) 33%,#263349);border-left:4px solid var(--group-color);border-radius:8px;overflow:hidden;background:var(--group-tint)}
-.micro-code-group.active{border-color:var(--group-color);border-left-width:4px}
-.micro-code-title{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.035);padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.08);color:var(--group-color);font:750 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.07em}
-.micro-code-title .group-dot{width:8px;height:8px;border-radius:2px;background:var(--group-color);flex-shrink:0}
-.micro-code-title small{color:#a0b1c9;font-size:10px;font-weight:400;letter-spacing:0}
-.micro-code-row{display:grid;grid-template-columns:102px minmax(0,1fr);gap:8px;text-align:left;width:100%;padding:7px 10px;border:0;border-bottom:1px solid rgba(255,255,255,.045);background:transparent;color:#cbd9ee;cursor:pointer}
-.micro-code-row:last-child{border-bottom:0}
-.micro-code-row:hover{background:rgba(255,255,255,.07)}
-.micro-code-row.active{background:color-mix(in srgb,var(--group-color) 23%,#14243a);box-shadow:inset 3px 0 var(--group-color);color:white}
-.micro-code-row:focus-visible{outline:2px solid var(--group-color);outline-offset:-2px}
-.micro-code-row .step-label{color:var(--group-color);font-size:10px;font-weight:700;line-height:1.6}
-.micro-code-row code{font:11px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
-.micro-code-row code .code-comment{color:#9cb1cd}
-.micro-step[class*="group-"]{border-left:3px solid var(--group-color);background:var(--group-tint);color:#334562}
-.micro-step[class*="group-"]:hover:not(.active){background:color-mix(in srgb,var(--group-color) 22%,white)}
-.micro-step[class*="group-"].done{background:color-mix(in srgb,var(--group-color) 15%,white);color:#4a6070}
-.micro-step[class*="group-"].active{background:color-mix(in srgb,var(--group-color) 29%,white);box-shadow:inset 3px 0 var(--group-color);color:#21324c}
-.code-group-caption{font:750 10px/1.5 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.09em;color:var(--group-color);padding:8px 12px 3px;border-top:1px solid #25334b;background:#16233a}
-.code-line[class*="group-"]{border-left-color:var(--group-color);background:var(--group-tint)}
-.code-line[class*="group-"].active{background:color-mix(in srgb,var(--group-color) 23%,#112039);border-left-color:var(--group-color);color:#fff}
-.code-line[class*="group-"].mma{background:color-mix(in srgb,var(--group-color) 12%,#0f1a2f)}
-.code-line[class*="group-"].mma.active{background:color-mix(in srgb,var(--group-color) 27%,#112039)}
+.micro-legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.micro-legend span{border-left:3px solid var(--group-color);background:color-mix(in srgb,var(--group-color) 12%,white);border-radius:4px;color:#37465e;padding:4px 7px;font-size:10.5px;font-weight:750}
+.micro-structured-code{background:#101b2c;border:1px solid #192947;border-radius:12px;padding:11px 0;overflow-x:auto;scrollbar-color:#445674 #101b2c}
+.micro-pseudo-row{display:grid;grid-template-columns:24px max-content;align-items:baseline;gap:8px;width:max-content;min-width:100%;border:0;border-left:4px solid transparent;border-radius:0;background:transparent;text-align:left;white-space:pre;color:#cad8ed;padding:1px 15px 1px 8px;font:11.5px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace}
+.micro-pseudo-row .line-num{font-size:10px;color:#586a83;user-select:none;text-align:right}
+.micro-pseudo-row code{font:inherit;white-space:pre}
+.micro-pseudo-row .code-comment{color:#93aaca}
+.micro-pseudo-row[class*="group-"]{background:var(--group-tint);border-left-color:var(--group-color)}
+.micro-pseudo-row[role="button"]{cursor:pointer}
+.micro-pseudo-row[role="button"]:hover{filter:brightness(1.25);background:color-mix(in srgb,var(--group-color) 25%,#142439)}
+.micro-pseudo-row[role="button"]:focus-visible{outline:2px solid var(--group-color);outline-offset:-2px}
+.micro-pseudo-row.active{background:color-mix(in srgb,var(--group-color) 32%,#162642);box-shadow:inset 3px 0 var(--group-color);color:#fff}
 .micro-flow .node[class*="group-"].active{background:var(--group-tint);border-color:var(--group-color);color:#253e64}
-@media(max-width:610px){.micro-code-row{grid-template-columns:84px minmax(0,1fr);gap:5px;padding:7px}.micro-code-groups{max-height:630px}.micro-code-row code{font-size:10px}}
+@media(max-width:610px){.micro-code-pane{padding:9px}.micro-pseudo-row{font-size:10.5px;gap:5px;padding-right:8px}.micro-code-intro span{font-size:10px}}
 
 /* Block-by-block kernel execution microscope */
 .breakdown{margin-top:20px;padding:24px}
@@ -65,18 +55,7 @@
 .breakdown .intro{max-width:980px;color:#61718a;margin:0 0 18px}
 .micro-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .micro-pct{height:6px;background:#ecf0f7;border-radius:9px;overflow:hidden;margin-bottom:15px}.micro-pct div{height:100%;width:0;background:linear-gradient(90deg,#4263df,#0f9d83);transition:width .15s}
-.micro-layout{display:grid;grid-template-columns:minmax(360px,.95fr) minmax(420px,1.3fr);gap:17px;align-items:start}
-.micro-timeline{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.micro-tile{border:1px solid #dfe6f1;border-radius:12px;overflow:hidden;min-width:0;background:#fbfcff}
-.micro-tile header{padding:10px;background:#eef3ff;border-bottom:1px solid #dfe6f1}
-.micro-tile header strong{font-size:12px;display:block;color:#284277}.micro-tile header small{font-size:10px;color:#6880a1}
-.micro-step{display:flex;gap:5px;align-items:center;border:0;border-bottom:1px solid #edf1f7;width:100%;padding:7px 6px;background:white;color:#68778f;font-size:10.5px;text-align:left;min-height:34px}
-.micro-step:last-child{border-bottom:0}.micro-step .micro-no{width:17px;color:#a1aec2;font:10px ui-monospace,monospace;flex-shrink:0}
-.micro-step.done{background:#eefaf5;color:#28725b}.micro-step.done .micro-no{color:#1c9476}
-.micro-step.active{background:#dce9ff;color:#243fad;box-shadow:inset 3px 0 #4568df;font-weight:800}
-.micro-step:hover:not(.active){background:#eef3fb}
-.micro-end{grid-column:1/-1;text-align:center;border:1px solid #c9dfd4;border-radius:9px;background:#f3fbf6;color:#19835a;font-weight:800;padding:8px;font-size:12px}
-.micro-end.active{background:#dff6e9;box-shadow:inset 0 0 0 2px #24a274}
+.micro-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr);gap:17px;align-items:start}
 .micro-workspace{border:1px solid #dfe7f4;border-radius:13px;padding:17px;min-width:0;background:linear-gradient(145deg,#fff,#f9fbff)}
 .micro-crumb{color:#63789f;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
 .micro-workspace h3{margin:6px 0 9px;font-size:20px;line-height:1.25}
@@ -97,8 +76,8 @@
 .micro-snap{background:#fff;border:1px solid #e0e7f2;border-radius:8px;padding:9px;min-width:0}
 .micro-snap b{font-size:11px;color:#405675}.micro-snap pre{font:11px/1.5 ui-monospace,monospace;color:#526480;margin:5px 0 0;white-space:pre-wrap}
 .micro-note{font-size:11px;color:#77859a;margin:10px 0 0}
-@media(max-width:1120px){.micro-layout{grid-template-columns:1fr}.micro-timeline{max-width:800px}}
-@media(max-width:610px){.breakdown{padding:14px}.micro-timeline{gap:4px}.micro-step{font-size:9px;padding:7px 4px}.micro-step .micro-no{display:none}.micro-tile header{padding:6px}.micro-tile header strong{font-size:11px}.micro-tile header small{font-size:9px}.micro-workspace{padding:12px}.micro-operands{grid-template-columns:1fr 1fr}.micro-snapshot{grid-template-columns:1fr}}
+@media(max-width:1120px){.micro-layout{grid-template-columns:1fr}}
+@media(max-width:610px){.breakdown{padding:14px}.micro-workspace{padding:12px}.micro-operands{grid-template-columns:1fr 1fr}.micro-snapshot{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -181,25 +160,32 @@
   <section class="panel breakdown" id="execution-breakdown" aria-label="Kernel execution breakdown">
     <p class="kicker">04 / New learning section</p>
     <div class="panel-head">
-      <div><h2>Block-by-block kernel execution</h2><p class="intro">One query tile, three KV blocks, and <b>every operation as its own click-to-inspect step.</b> Follow actual numbers through color-coded load, QK MMA, max, EXP, row sum, PV MMA, history rescaling, accumulation, and final normalization. Select an operation by clicking the timeline or pseudocode; no autoplay.</p></div>
+      <div><h2>Block-by-block kernel execution</h2><p class="intro">One query tile, three KV blocks, and <b>every operation as its own click-to-inspect step.</b> Read the original nested pseudocode from top to bottom. Operation lines are colored by LOAD, MMA, MAX, EXP, ROW SUM, ACCUMULATE, and NORMALIZE. Click a line to inspect its values for the selected KV tile. No playback or separate KV-block timelines.</p></div>
       <span class="tag teal">40 manual operations · single query head</span>
     </div>
     <div class="micro-controls" aria-label="Manual operation inspection">
       <button type="button" class="btn" id="microPrev">← Previous</button>
       <button type="button" class="btn primary" id="microNext">Next operation →</button>
       <button type="button" class="btn" id="microReset">↺ Reset</button>
+      <label class="small muted" for="microTile">KV tile</label>
+      <select id="microTile" aria-label="Select KV tile"><option value="0">Tile 1 · K/V 0–1</option><option value="1">Tile 2 · K/V 2–3</option><option value="2">Tile 3 · K/V 4–5</option></select>
       <label class="small muted" for="microRow">Inspect query row</label>
       <select id="microRow" aria-label="Choose query row"><option value="0">q0</option><option value="1">q1</option></select>
       <span id="microCounter" class="small mono muted" aria-live="polite">1 / 40</span>
     </div>
     <div class="micro-pct"><div id="microProgress"></div></div>
     <div class="micro-layout">
-      <div class="micro-timeline" id="microTimeline" aria-label="Operations grouped by KV block"></div>
+      <div class="micro-code-pane">
+        <div class="micro-code-intro"><strong>FlashAttention pseudocode</strong><span>Same loop and indentation · select a line to inspect</span></div>
+        <div class="micro-legend" aria-label="Operation colors">
+          <span class="group-load">Load &amp; init</span><span class="group-qk">QK MMA</span><span class="group-max">Max</span><span class="group-exp">EXP</span><span class="group-sum">Row sum</span><span class="group-pv">PV MMA</span><span class="group-acc">Rescale &amp; add</span><span class="group-norm">Normalize</span>
+        </div>
+        <div class="micro-structured-code" id="microCode" role="group" aria-label="Complete nested FlashAttention pseudocode with colored operations"></div>
+        <p class="micro-note">The code is one Q tile's complete loop; choose KV tile 1, 2, or 3 above to inspect a different loop iteration. Colors are algorithmic groups, not hardware execution times.</p>
+      </div>
       <div class="micro-workspace">
         <div class="micro-crumb" id="microCrumb"></div>
         <h3 id="microTitle">Load inputs</h3>
-        <div class="micro-code-intro"><strong>Color-coded pseudocode</strong><span>Click a colored line to inspect its values in the selected KV block</span></div>
-        <div class="micro-code-groups" id="microCode" role="group" aria-label="Color-coded FlashAttention pseudocode grouped by stage"></div>
         <div class="micro-flow" id="microFlow" aria-label="Dataflow operation sequence"></div>
         <p class="micro-desc" id="microDesc"></p>
         <div class="micro-operands" id="microOperands"></div>
@@ -358,25 +344,15 @@ const codeLines=[
  {t:'    out = output_accumulator / running_exp_sum[:,None] # [Bq,D]',ids:[9]},
  {t:'    store(O[q_tile_idx], out)               # [Bq,D]',ids:[9]}
 ];
-const MAIN_COLOR_GROUPS=[
- {start:0,end:10,id:'load',label:'Load / initialization'},
- {start:11,end:12,id:'qk',label:'QK MMA / scale'},
- {start:13,end:15,id:'max',label:'Row max / new max'},
- {start:16,end:21,id:'exp',label:'EXP corrections / attention weights'},
- {start:22,end:25,id:'sum',label:'Row sum / denominator'},
- {start:26,end:27,id:'pv',label:'PV MMA'},
- {start:28,end:38,id:'acc',label:'Rescale old acc + add PV'},
- {start:39,end:40,id:'norm',label:'Normalize / store'}
-];
 function renderCode(c){
- let html=codeLines.map((line,idx)=>{
-  const g=MAIN_COLOR_GROUPS.find(x=>idx>=x.start&&idx<=x.end);
-  const prefix=idx===g.start?`<div class="code-group-caption group-${g.id}">${esc(g.label)}</div>`:'';
-  let active=line.ids.includes(c.stage) && (!line.firstTileOnly || c.tile===0);
-  let str=esc(line.t).replace(/(#.*)$/,'<span class="cmt">$1</span>');
-  return `${prefix}<div class="code-line group-${g.id} ${active?'active':''} ${line.mma?'mma':''}"><code>${str||' '}</code></div>`;
+ let html=codeLines.map(line=>{
+ let active=line.ids.includes(c.stage) && (!line.firstTileOnly || c.tile===0);
+ let str=esc(line.t).replace(/(#.*)$/,'<span class="cmt">$1</span>');
+ return `<div class="code-line ${active?'active':''} ${line.mma?'mma':''}"><code>${str||' '}</code></div>`;
  }).join('');
  $('codePanel').innerHTML=html;
+ const active=$('codePanel').querySelector('.active');
+ if(active){const box=$('codePanel');if(active.offsetTop>box.offsetTop+box.clientHeight || active.offsetTop<box.offsetTop){} }
 }
 function renderTrack(c){
  $('tileTrack').innerHTML=Array.from({length:numTiles},(_,i)=>{
@@ -427,33 +403,48 @@ const MICRO_STAGES = [
  {name:'Commit running maximum',short:'Commit max',code:'running_max = new_max    # [Bq]',explain:'Commit this block’s maximum. The updated m, l, and accumulator persist into the next KV block.'}
 ];
 const MICRO_LAST={name:'Normalize and store',short:'Normalize',code:'output_tile = output_accumulator / running_exp_sum[:,None]  # [Bq,D]\nstore(O[q_idx], output_tile)    # [Bq,D]',explain:'After every KV block has contributed, divide numerator by denominator and store the final attention output once.'};
-// Each group consistently colors its pseudocode rows and timeline operations.
-const MICRO_GROUPS=[
- {id:'load',title:'LOAD · HBM / TILES',steps:[0],hint:'Reuse Q; load K and V for this block'},
- {id:'qk',title:'QK MMA · SCORES',steps:[1,2],hint:'First matrix multiply and softmax scale'},
- {id:'max',title:'ROW MAX · UPDATE M',steps:[3,4],hint:'Row reduction and online maximum'},
- {id:'exp',title:'EXP · REBASE WEIGHTS',steps:[5,6],hint:'History correction and current exponentials'},
- {id:'sum',title:'ROW SUM · DENOMINATOR',steps:[7,8],hint:'Update running softmax denominator'},
- {id:'pv',title:'PV MMA · NEW CONTRIBUTION',steps:[9],hint:'Second matrix multiply'},
- {id:'acc',title:'RESCALE · ACCUMULATE',steps:[10,11,12],hint:'Scale the OLD acc, add PV, commit running max'},
- {id:'norm',title:'NORMALIZE · STORE',steps:[13],hint:'One final output division and write'}
-];
-const groupIdForOp=i=>MICRO_GROUPS.find(g=>g.steps.includes(i)).id;
-function renderGroupedMicroCode(op,block,done){
- const selectedOp=done?13:op;
- $('microCode').innerHTML=MICRO_GROUPS.map(group=>`<section class="micro-code-group group-${group.id} ${group.steps.includes(selectedOp)?'active':''}">
-   <div class="micro-code-title"><span class="group-dot"></span>${esc(group.title)} <small>· ${esc(group.hint)}</small></div>
-   ${group.steps.map(i=>{
-      const stage=i===13?MICRO_LAST:MICRO_STAGES[i];
-      const code=esc(stage.code).replace(/(#.*)$/gm,'<span class="code-comment">$1</span>');
-      return `<button type="button" data-code-op="${i}" class="micro-code-row ${i===selectedOp?'active':''}" ${i===selectedOp?'aria-current="step"':''} title="Inspect ${esc(stage.name)}"><span class="step-label">${i===13?'FINAL':String(i+1).padStart(2,'0')} · ${esc(stage.short)}</span><code>${code}</code></button>`;
-   }).join('')}
- </section>`).join('');
- $('microCode').querySelectorAll('[data-code-op]').forEach(btn=>btn.addEventListener('click',()=>{
-   const selected=Number(btn.dataset.codeOp);
-   microStep=selected===13?MICRO_COUNT-1:block*MICRO_STAGES.length+selected;
-   microRender();
- }));
+// Map the original, nested pseudocode lines to a semantic color and an inspectable operation.
+// The first "Corresponding pseudocode" remains unchanged.
+const MICRO_LINE_META={
+ 3:['load',0],8:['load',0],9:['load',0],
+ 11:['qk',1],12:['qk',2],
+ 13:['max',3],14:['max',4],
+ 16:['exp',5],17:['exp',5],18:['exp',5],19:['exp',5],20:['exp',6],
+ 22:['sum',7],23:['sum',8],24:['sum',8],
+ 26:['pv',9],
+ 28:['acc',10],29:['acc',10],30:['acc',10],31:['acc',10],
+ 33:['acc',11],34:['acc',11],35:['acc',11],36:['acc',11],37:['acc',12],
+ 39:['norm',13],40:['norm',13]
+};
+const MICRO_FLOW_GROUPS=['load','qk','qk','max','max','exp','exp','sum','sum','pv','acc','acc','acc','norm'];
+function renderStructuredMicroCode(op,done){
+ const current=done?13:op;
+ const code=$('microCode');
+ if(!code.dataset.ready){
+   code.innerHTML=codeLines.map((line,index)=>{
+     const meta=MICRO_LINE_META[index];
+     const group=meta?`group-${meta[0]}`:'';
+     const action=meta?`role="button" tabindex="0" data-code-op="${meta[1]}" title="Inspect ${esc(meta[0])} operation"`:'';
+     const syntax=esc(line.t).replace(/(#.*)$/,'<span class="code-comment">$1</span>');
+     return `<div class="micro-pseudo-row ${group}" data-code-line="${index}" ${action}><span class="line-num">${index+1}</span><code>${syntax||' '}</code></div>`;
+   }).join('');
+   for(const el of code.querySelectorAll('[data-code-op]')){
+     const select=()=>{
+       const nextOp=Number(el.dataset.codeOp);
+       const currentTile=Math.min(Math.floor(microStep/MICRO_STAGES.length),numTiles-1);
+       microStep=nextOp===13?MICRO_COUNT-1:currentTile*MICRO_STAGES.length+nextOp;
+       microRender();
+     };
+     el.addEventListener('click',select);
+     el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}});
+   }
+   code.dataset.ready='yes';
+ }
+ for(const el of code.querySelectorAll('[data-code-op]')){
+   const active=Number(el.dataset.codeOp)===current;
+   el.classList.toggle('active',active);
+   if(active)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');
+ }
 }
 
 const MICRO_COUNT=MICRO_STAGES.length*numTiles+1;
@@ -487,11 +478,11 @@ function microRender(){
  }
  $('microCrumb').textContent=done?`Q block 1 · All ${numTiles} KV blocks complete · Final output`:`Q block 1 · KV block ${tile+1}/${numTiles} · Operation ${op+1}/${MICRO_STAGES.length}`;
  $('microTitle').textContent=stage.name;
- renderGroupedMicroCode(op,tile,done);
+ renderStructuredMicroCode(op,done);
  $('microDesc').textContent=stage.explain;
  $('microEquation').textContent=equation;
  $('microOperands').innerHTML=cards.map(c=>`<div class="micro-operand ${c.result?'result':''}"><div class="m-title">${esc(c.name)}</div><div class="m-shape">${esc(c.shape)}</div><div class="m-values">${Array.isArray(c.value[0])?c.value.map(microVec).join('\n'):microVec(c.value)}</div></div>`).join('');
- $('microFlow').innerHTML=MICRO_FLOW.map((n,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node ${i===(done?13:op)?'active':''}">${esc(n)}</span>`).join('');
+ $('microFlow').innerHTML=MICRO_FLOW.map((n,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node group-${MICRO_FLOW_GROUPS[i]} ${i===(done?13:op)?'active':''}">${esc(n)}</span>`).join('');
   const stateAfter={m:done||op>=12?newm:oldm,l:done||op>=8?t.updatedL[r]:oldL,acc:done||op>=11?t.updatedAcc[r]:oldAcc};
  $('microSnapshot').innerHTML=`<div class="micro-snap"><b>Entering KV block ${tile+1}</b><pre>m: ${fmt(oldm,4)}\nl: ${fmt(oldL,4)}\nacc: ${microVec(oldAcc)}</pre></div><div class="micro-snap"><b>Current persisted state</b><pre>m: ${fmt(stateAfter.m,4)}\nl: ${fmt(stateAfter.l,4)}\nacc: ${microVec(stateAfter.acc)}</pre></div>`;
  $('microCounter').textContent=`${microStep+1} / ${MICRO_COUNT}`;
@@ -499,8 +490,7 @@ function microRender(){
  $('microPrev').disabled=microStep===0;
  $('microNext').disabled=done;
  $('microNext').textContent=done?'Complete ✓':microStep===MICRO_COUNT-2?'Normalize →':'Next operation →';
- $('microTimeline').innerHTML=Array.from({length:numTiles},(_,b)=>`<div class="micro-tile"><header><strong>KV block ${b+1}</strong><small>K/V rows ${b*Bk}–${b*Bk+Bk-1}</small></header>${MICRO_STAGES.map((s,i)=>{const idx=b*MICRO_STAGES.length+i;return `<button type="button" data-micro="${idx}" class="micro-step group-${groupIdForOp(i)} ${idx===microStep?'active':idx<microStep?'done':''}" ${idx===microStep?'aria-current="step"':''}><span class="micro-no">${String(i+1).padStart(2,'0')}</span>${esc(s.short)}</button>`}).join('')}</div>`).join('')+`<button type="button" class="micro-end group-norm ${done?'active':''}" data-micro="${MICRO_COUNT-1}">Final: Normalize O = acc / l → HBM output</button>`;
- $('microTimeline').querySelectorAll('[data-micro]').forEach(b=>b.addEventListener('click',()=>{microStop();microStep=Number(b.dataset.micro);microRender();}));
+ $('microTile').value=String(tile);
 }
 function microStop(){} // Manual selection only.
 function microAdvance(){if(microStep<MICRO_COUNT-1){microStep++;microRender();}else microStop();}
@@ -508,6 +498,7 @@ $('microPrev').addEventListener('click',()=>{microStop();microStep=Math.max(0,mi
 $('microNext').addEventListener('click',()=>{microStop();microAdvance();});
 $('microReset').addEventListener('click',()=>{microStop();microStep=0;microRender();});
 $('microRow').addEventListener('change',()=>{microRow=Number($('microRow').value);microRender();});
+$('microTile').addEventListener('change',()=>{const op=microStep===MICRO_COUNT-1?0:microStep%MICRO_STAGES.length;microStep=Number($('microTile').value)*MICRO_STAGES.length+op;microRender();});
 microRender();
 
 </script>
