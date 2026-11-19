@@ -67,6 +67,10 @@
     "Algorithms",
     "GPU Kernels"
   ],
+  "flashattention_online_softmax_visualizer.html": [
+    "Attention",
+    "GPU Kernels"
+  ],
   "glm-5.2-sharedindexer.html": [
     "AI Models",
     "Attention"
