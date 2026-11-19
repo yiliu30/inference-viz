@@ -89,6 +89,46 @@
     <p>Follow one query tile through three K/V tiles. Watch <strong>QK MMA → score scaling → row max → two exponentials → denominator → PV MMA → accumulation → output</strong>, with real values, tensor shapes, and the matching pseudocode.</p>
     <div class="chips"><span class="chip">Teaching example: <code>Bq=2 · Bk=2 · D=2</code></span><span class="chip">GPU-sized example: <code>Bq=64 · Bk=64 · D=128</code></span><span class="chip">Q: [2,2] · K/V: [6,2]</span><span class="chip">Non-causal (unmasked) example · exact attention</span></div>
   </header>
+  <section class="panel breakdown" id="execution-breakdown" aria-label="Kernel execution breakdown">
+    <p class="kicker">04 / New learning section</p>
+    <div class="panel-head">
+      <div><h2>Block-by-block kernel execution</h2><p class="intro">One query tile, three KV blocks, and <b>every operation as its own click-to-inspect step.</b> Read the original nested pseudocode from top to bottom. Operation lines are colored by LOAD, MMA, MAX, EXP, ROW SUM, ACCUMULATE, and NORMALIZE. Click a line to inspect its values for the selected KV tile. No playback or separate KV-block timelines.</p></div>
+      <span class="tag teal">40 manual operations · single query head</span>
+    </div>
+    <div class="micro-controls" aria-label="Manual operation inspection">
+      <button type="button" class="btn" id="microPrev">← Previous</button>
+      <button type="button" class="btn primary" id="microNext">Next operation →</button>
+      <button type="button" class="btn" id="microReset">↺ Reset</button>
+      <label class="small muted" for="microTile">KV tile</label>
+      <select id="microTile" aria-label="Select KV tile"><option value="0">Tile 1 · K/V 0–1</option><option value="1">Tile 2 · K/V 2–3</option><option value="2">Tile 3 · K/V 4–5</option></select>
+      <label class="small muted" for="microRow">Inspect query row</label>
+      <select id="microRow" aria-label="Choose query row"><option value="0">q0</option><option value="1">q1</option></select>
+      <span id="microCounter" class="small mono muted" aria-live="polite">1 / 40</span>
+    </div>
+    <div class="micro-pct"><div id="microProgress"></div></div>
+    <div class="micro-layout">
+      <div class="micro-code-pane">
+        <div class="micro-code-intro"><strong>FlashAttention pseudocode</strong><span>Same loop and indentation · select a line to inspect</span></div>
+        <div class="micro-legend" aria-label="Operation colors">
+          <span class="group-load">Load &amp; init</span><span class="group-qk">QK MMA</span><span class="group-max">Max</span><span class="group-exp">EXP</span><span class="group-sum">Row sum</span><span class="group-pv">PV MMA</span><span class="group-acc">Rescale &amp; add</span><span class="group-norm">Normalize</span>
+        </div>
+        <div class="micro-structured-code" id="microCode" role="group" aria-label="Complete nested FlashAttention pseudocode with colored operations"></div>
+        <p class="micro-note">The code is one Q tile's complete loop; choose KV tile 1, 2, or 3 above to inspect a different loop iteration. Colors are algorithmic groups, not hardware execution times.</p>
+      </div>
+      <div class="micro-workspace">
+        <div class="micro-crumb" id="microCrumb"></div>
+        <h3 id="microTitle">Load inputs</h3>
+        <div class="micro-flow" id="microFlow" aria-label="Dataflow operation sequence"></div>
+        <p class="micro-desc" id="microDesc"></p>
+        <div class="micro-operands" id="microOperands"></div>
+        <div class="micro-equation" id="microEquation"></div>
+        <div class="micro-snapshot" id="microSnapshot"></div>
+        <p class="micro-note" id="referenceCheck" role="status" aria-live="polite">Checking against direct full-softmax reference…</p>
+        <p class="micro-note">Teaching model: non-causal toy tensor shapes with JavaScript FP64 arithmetic; no fully masked rows. The two matrix multiplications are shown as MMA stages, not a cycle-accurate GPU pipeline. Values are rounded only for display.</p>
+      </div>
+    </div>
+  </section>
+
   <div class="layout">
     <div class="left">
       <section class="panel" aria-label="Manual step controls">
@@ -157,45 +197,7 @@
       </section>
     </aside>
   </div>
-  <section class="panel breakdown" id="execution-breakdown" aria-label="Kernel execution breakdown">
-    <p class="kicker">04 / New learning section</p>
-    <div class="panel-head">
-      <div><h2>Block-by-block kernel execution</h2><p class="intro">One query tile, three KV blocks, and <b>every operation as its own click-to-inspect step.</b> Read the original nested pseudocode from top to bottom. Operation lines are colored by LOAD, MMA, MAX, EXP, ROW SUM, ACCUMULATE, and NORMALIZE. Click a line to inspect its values for the selected KV tile. No playback or separate KV-block timelines.</p></div>
-      <span class="tag teal">40 manual operations · single query head</span>
-    </div>
-    <div class="micro-controls" aria-label="Manual operation inspection">
-      <button type="button" class="btn" id="microPrev">← Previous</button>
-      <button type="button" class="btn primary" id="microNext">Next operation →</button>
-      <button type="button" class="btn" id="microReset">↺ Reset</button>
-      <label class="small muted" for="microTile">KV tile</label>
-      <select id="microTile" aria-label="Select KV tile"><option value="0">Tile 1 · K/V 0–1</option><option value="1">Tile 2 · K/V 2–3</option><option value="2">Tile 3 · K/V 4–5</option></select>
-      <label class="small muted" for="microRow">Inspect query row</label>
-      <select id="microRow" aria-label="Choose query row"><option value="0">q0</option><option value="1">q1</option></select>
-      <span id="microCounter" class="small mono muted" aria-live="polite">1 / 40</span>
-    </div>
-    <div class="micro-pct"><div id="microProgress"></div></div>
-    <div class="micro-layout">
-      <div class="micro-code-pane">
-        <div class="micro-code-intro"><strong>FlashAttention pseudocode</strong><span>Same loop and indentation · select a line to inspect</span></div>
-        <div class="micro-legend" aria-label="Operation colors">
-          <span class="group-load">Load &amp; init</span><span class="group-qk">QK MMA</span><span class="group-max">Max</span><span class="group-exp">EXP</span><span class="group-sum">Row sum</span><span class="group-pv">PV MMA</span><span class="group-acc">Rescale &amp; add</span><span class="group-norm">Normalize</span>
-        </div>
-        <div class="micro-structured-code" id="microCode" role="group" aria-label="Complete nested FlashAttention pseudocode with colored operations"></div>
-        <p class="micro-note">The code is one Q tile's complete loop; choose KV tile 1, 2, or 3 above to inspect a different loop iteration. Colors are algorithmic groups, not hardware execution times.</p>
-      </div>
-      <div class="micro-workspace">
-        <div class="micro-crumb" id="microCrumb"></div>
-        <h3 id="microTitle">Load inputs</h3>
-        <div class="micro-flow" id="microFlow" aria-label="Dataflow operation sequence"></div>
-        <p class="micro-desc" id="microDesc"></p>
-        <div class="micro-operands" id="microOperands"></div>
-        <div class="micro-equation" id="microEquation"></div>
-        <div class="micro-snapshot" id="microSnapshot"></div>
-        <p class="micro-note" id="referenceCheck" role="status" aria-live="polite">Checking against direct full-softmax reference…</p>
-        <p class="micro-note">Teaching model: non-causal toy tensor shapes with JavaScript FP64 arithmetic; no fully masked rows. The two matrix multiplications are shown as MMA stages, not a cycle-accurate GPU pipeline. Values are rounded only for display.</p>
-      </div>
-    </div>
-  </section>
+
 </main>
 <script>
 'use strict';
