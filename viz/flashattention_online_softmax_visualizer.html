@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light" />
+<title>FlashAttention · Interactive Online Softmax Walkthrough</title>
+<style>
+:root { --bg:#f6f8fc; --paper:#fff; --ink:#15223a; --muted:#64718a; --line:#dce4f0; --blue:#4263df; --blue-bg:#eef2ff; --teal:#078b83; --teal-bg:#e4f8f3; --amber:#bb7514; --amber-bg:#fff6e6; --purple:#8750c8; --purple-bg:#f4edff; --green:#118357; --green-bg:#e5f8ee; --rose:#ca596d; --rose-bg:#fff0f2; --shadow: 0 8px 36px rgba(24,43,77,.06); }
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font:14px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)} button,select{font:inherit} button{cursor:pointer} button:focus-visible,select:focus-visible{outline:3px solid #91a8ff;outline-offset:2px}
+.shell{max-width:1510px;margin:0 auto;padding:26px 28px 48px}.hero{background:linear-gradient(122deg,#101c39 0%,#192e57 58%,#234f67 100%);border-radius:22px;color:#fff;padding:29px 32px;position:relative;overflow:hidden;box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;width:430px;height:430px;border:1px solid rgba(255,255,255,.11);border-radius:50%;right:-65px;top:-240px;box-shadow:0 0 0 76px rgba(255,255,255,.025),0 0 0 160px rgba(255,255,255,.025);pointer-events:none}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.19em;font-weight:800;opacity:.7}.hero h1{font-size:clamp(24px,3.4vw,36px);letter-spacing:-.045em;line-height:1.15;margin:8px 0}.hero p{max-width:840px;margin:0;color:#cbd8eb;font-size:14px}.hero .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.chip{font:600 12px ui-monospace,SFMono-Regular,Consolas,monospace;background:#ffffff18;border:1px solid #ffffff29;padding:6px 10px;border-radius:7px}.hero code{color:#c9f9ef}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(370px,.83fr);gap:18px;margin-top:18px;align-items:start}.left,.right{min-width:0}.panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:17px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.panel h2{font-size:16px;letter-spacing:-.02em;line-height:1.2;margin:0}.panel h3{font-size:13px;margin:0 0 9px;letter-spacing:-.015em}.muted{color:var(--muted)}.small{font-size:12px}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-numeric:tabular-nums}.count{font-weight:700;color:var(--muted);font:12px ui-monospace,monospace}.control-bar{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.btn{border:1px solid #d6e0f0;background:white;color:#273758;border-radius:9px;padding:9px 13px;font-weight:700;font-size:12px;transition:background .15s,transform .15s}.btn:hover:not(:disabled){background:#f0f5fd;transform:translateY(-1px)}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn.primary:hover:not(:disabled){background:#324cc0}.btn:disabled{opacity:.4;cursor:default}select{border:1px solid #d6e0f0;background:white;border-radius:9px;padding:8px;color:#273758;font-size:12px}.key{border:1px solid #dae1ef;padding:2px 5px;border-radius:4px;font-size:10px}.progress{height:6px;background:#e9edf6;border-radius:999px;overflow:hidden;margin-top:14px}.progress div{height:100%;background:linear-gradient(90deg,#5873df,#1eab92);border-radius:999px;transition:width .2s}
+.tile-track{display:flex;gap:8px;align-items:stretch;margin-top:13px}.tile{flex:1;background:#f8faff;border:1px solid #e0e7f3;border-radius:10px;text-align:left;padding:10px;min-width:0;color:var(--muted);cursor:pointer}.tile strong{display:block;font-size:12px;color:#334666}.tile small{font-size:11px}.tile.selected{background:#e8f7f3;border:1px solid #2fac97;color:#0e6b63;box-shadow:inset 0 0 0 1px #2fac97}.tile.selected strong{color:#08796b}.tile.complete{background:#f0f4ff;border-color:#abc2f9}.tile .bars{display:flex;gap:3px;margin-top:8px}.bars span{height:4px;flex:1;background:#dce4f2;border-radius:2px}.tile.complete .bars span{background:#7493e5}.tile.selected .bars span{background:#2fac97}
+.stage-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:15px}.stage{border:1px solid #e1e7f2;border-radius:9px;padding:9px 7px;line-height:1.2;background:#fff;text-align:center;min-height:53px;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:5px;color:#738096}.stage .num{font:700 10px ui-monospace,monospace;opacity:.75}.stage strong{font-size:11px}.stage.active{background:var(--blue-bg);border-color:#8b9ff9;color:#304bc6;box-shadow:inset 0 0 0 1px #8b9ff9}.stage.past{background:#f1f8f6;color:#148578;border-color:#bce6db}
+.now{margin-top:16px;padding:17px;border:1px solid #cfdbff;background:linear-gradient(120deg,#f6f8ff,#effbf9);border-radius:12px;min-height:154px}.now .caption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5772ba;font-weight:800}.now h2{font-size:21px;margin:6px 0}.now .formula{font:600 14px ui-monospace,monospace;background:#fff;border:1px solid #dbe4f5;display:inline-block;border-radius:7px;padding:9px 11px;color:#25416e;margin:5px 0 6px;max-width:100%;overflow-x:auto;white-space:pre-wrap}.now p{margin:3px 0;color:#425674;font-size:12.5px}
+.matrix-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.matrix-card{border:1px solid #e1e7f1;background:#fcfdff;border-radius:12px;padding:11px;min-width:0;transition:box-shadow .15s,background .15s,border .15s}.matrix-card.active{border-color:var(--accent,#4c71db);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#4c71db) 20%,transparent);background:#fff}.mhead{display:flex;justify-content:space-between;gap:5px;align-items:center;margin-bottom:9px}.mhead .name{font-weight:800;font-size:13px;display:flex;gap:7px;align-items:center}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent,#4c71db);display:inline-block;flex-shrink:0}.shape{font:600 10px ui-monospace,monospace;background:#f0f4fc;color:#526581;padding:3px 6px;border-radius:5px;white-space:nowrap}.num-matrix{display:grid;gap:4px;width:100%}.num-matrix .numcell{min-height:36px;border-radius:6px;border:1px solid #e2e8f1;background:var(--cell,#f3f6fc);display:flex;align-items:center;justify-content:center;font:600 12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#28384f;white-space:nowrap}.matrix-card .note{min-height:26px;font-size:11px;margin-top:8px;color:var(--muted)}.matrix-card .placeholder{padding:25px 2px;color:#a0acc1;font:12px ui-monospace,monospace;text-align:center;border:1px dashed #e0e6ef;border-radius:6px}.matrix-card[aria-current="step"] .name{color:var(--accent)}
+.state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.state-item{background:#f8faff;border:1px solid #e2e9f3;border-radius:10px;padding:10px;min-width:0}.state-item .state-title{font-size:12px;font-weight:750;color:#374a67}.state-item .state-shape{font-size:10px;color:#78869c}.state-item .value{font:600 12px ui-monospace,monospace;color:#233958;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:6px}.state-item.highlight{border-color:#77bcae;background:#f0faf7}.old-new{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.side-table{width:100%;border-collapse:collapse;font:12px ui-monospace,monospace}.side-table th,.side-table td{padding:6px 5px;border-bottom:1px solid #edf0f6;text-align:right}.side-table th:first-child,.side-table td:first-child{text-align:left;color:#778397}.side-table th{color:#667894;font-size:11px}.side-table td{color:#283a57}.before-after{padding:10px;border:1px solid #e2e8f3;border-radius:9px;min-width:0}.before-after h3{font-size:12px;margin-bottom:6px}.before-after.computed{border-color:#b0d9cd;background:#f5fcfa}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:#667792}.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.footnote{background:#f5f7fb;border-radius:8px;padding:9px 11px;font-size:11px;color:#738198;margin-top:12px}
+.code{font:12px/1.85 ui-monospace,SFMono-Regular,Consolas,monospace;background:#0f1a2f;color:#bbcbe4;padding:11px 0;border-radius:12px;overflow-x:auto;counter-reset:line}.code-line{display:block;white-space:pre;padding:0 13px 0 12px;min-height:22px;border-left:3px solid transparent;position:relative}.code-line.active{background:#32486a;color:#fff;border-left-color:#7ddcd5}.code-line.mma{background:rgba(41,173,158,.11);border-left-color:#37a897}.code-line.mma.active{background:#245664;border-left-color:#7ff5d9}.code-line code{white-space:pre}.code-line .cmt{color:#7c98ad}.code-line .fun{color:#8edacb}.code-line .tensor{color:#b9b5ff}.code-line .kw{color:#efb481}.code-line .shape-comment{color:#7c9fbc}.code-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.fact{border-left:3px solid var(--purple);background:#faf7ff;padding:10px 12px;border-radius:0 8px 8px 0;margin-top:10px}.fact strong{color:#633b97}.fact p{margin:2px 0 0;font-size:12px;color:#665d77}.edu-list{padding-left:17px;color:#4f5f78;font-size:12.5px;margin:8px 0}.edu-list li{margin:6px 0}.section-divider{height:1px;background:#e4e9f2;margin:16px 0}.details-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}.details-steps div{padding:9px;border-radius:9px;background:#f8faff;border:1px solid #e3e9f4}.details-steps b{display:block;font-size:12px}.details-steps span{font-size:11px;color:#748198}.result{padding:12px 14px;border-radius:9px;background:#eefaf2;border:1px solid #b2e2c5;color:#17663d;font-weight:650}.tag{display:inline-block;border-radius:6px;padding:3px 6px;font:700 10px ui-monospace,monospace}.tag.amber{background:#fff3d7;color:#9c6400}.tag.teal{background:#daf6ef;color:#067a70}.help{cursor:help;border-bottom:1px dotted currentColor}
+@media(max-width:1100px){.layout{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr;gap:16px}.right .panel{margin:0}.right .panel:first-child{grid-column:1/-1}}@media(max-width:750px){.shell{padding:10px}.hero{padding:22px 18px;border-radius:16px}.panel{padding:15px}.matrix-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.state-grid{grid-template-columns:1fr 1fr}.right{display:block}.right .panel{margin-bottom:16px}.old-new{grid-template-columns:1fr}.stage-grid{grid-template-columns:repeat(5,1fr)}.stage{padding:7px 3px;min-height:60px}.stage strong{font-size:10px}.tile small{font-size:9px}.num-matrix .numcell{font-size:11px;min-height:30px}.control-bar{gap:6px}.btn{padding:8px 9px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="hero">
+    <div class="eyebrow">Interactive kernel walkthrough · numerical simulator</div>
+    <h1>Inside FlashAttention</h1>
+    <p>Follow one query tile through three K/V tiles. Watch <strong>QK MMA → score scaling → row max → two exponentials → denominator → PV MMA → accumulation → output</strong>, with real values, tensor shapes, and the matching pseudocode.</p>
+    <div class="chips"><span class="chip">Teaching example: <code>Bq=2 · Bk=2 · D=2</code></span><span class="chip">GPU-sized example: <code>Bq=64 · Bk=64 · D=128</code></span><span class="chip">Q: [2,2] · K/V: [6,2]</span><span class="chip">Non-causal (unmasked) example · exact attention</span></div>
+  </header>
+  <div class="layout">
+    <div class="left">
+      <section class="panel" aria-label="Playback controls">
+        <div class="panel-head"><h2>01 / Step through the kernel</h2><span class="count" id="stepCounter">Step 1 / 28</span></div>
+        <div class="control-bar">
+          <button class="btn" id="backBtn" title="Previous step (left arrow)">← Previous</button>
+          <button class="btn primary" id="nextBtn" title="Next step (right arrow)">Next step →</button>
+          <button class="btn" id="playBtn" title="Auto-play steps">▶ Play</button>
+          <button class="btn" id="resetBtn">↺ Reset</button>
+          <label class="small muted" for="speedSelect">Speed</label><select id="speedSelect" aria-label="Play speed"><option value="2200">Slow</option><option value="1350" selected>Normal</option><option value="700">Fast</option></select>
+          <span class="small muted">Keyboard: <span class="key">←</span> <span class="key">→</span></span>
+        </div>
+        <div class="progress"><div id="progressFill" style="width:0%"></div></div>
+        <div class="tile-track" id="tileTrack" aria-label="KV tiles"></div>
+        <div class="stage-grid" id="stageGrid" aria-label="Calculation stages"></div>
+        <div class="now" role="status" aria-live="polite">
+          <div class="caption" id="nowTag">KV tile 1 / 3 · Stage 1 / 9</div>
+          <h2 id="nowTitle">Load Q, K, V</h2>
+          <div class="formula" id="nowFormula">K_tile, V_tile ← HBM</div>
+          <p id="nowText">...</p>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>02 / Tensor values</h2><span class="small muted">Each cell displays its numerical value</span></div>
+        <div class="matrix-grid" id="matrixGrid"></div>
+        <div class="footnote">Color highlights the tensors used or produced in the current step. Values are rounded for display; calculations keep full JavaScript floating-point precision. In a real kernel, score and weight tiles stay on-chip rather than becoming full HBM matrices.</div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>03 / Running softmax state</h2><span class="tag teal">Persists across KV tiles</span></div>
+        <div class="state-grid" id="stateGrid"></div>
+        <div class="old-new">
+          <div class="before-after"><h3>State entering this tile</h3><div id="beforeTable"></div></div>
+          <div class="before-after computed"><h3>State after the complete tile</h3><div id="afterTable"></div></div>
+        </div>
+        <div class="footnote">Here <b>m</b> and <b>l</b> are length-Bq vectors; <b>acc</b> is [Bq, D]. The final-state table appears after the current tile completes. The separate new-max card shows the candidate maximum before running_max is committed at the Accumulate step.</div>
+      </section>
+    </div>
+    <aside class="right">
+      <section class="panel">
+        <div class="code-actions"><h2>Corresponding pseudocode</h2><button class="btn" id="copyBtn">Copy code</button></div>
+        <div class="code" id="codePanel" role="region" aria-label="Highlighted FlashAttention pseudocode"></div>
+        <div class="footnote">The highlighted rows follow the active step. <b>QK MMA</b> and <b>PV MMA</b> each have their own row. The accumulation stage explicitly rescales the <b>previous</b> accumulator before adding the new PV result. All tensor shapes refer to the tiny example.</div>
+      </section>
+      <section class="panel">
+        <h2>Why are there two exponential terms?</h2>
+        <div class="fact"><strong>EXP #1 · Rescale history</strong><p class="mono">correction = exp(old_max − new_max)</p><p>Rescales the <em>previous</em> denominator and output accumulator when the maximum changes. On the first tile, correction is 0 (no history).</p></div>
+        <div class="fact" style="border-left-color:var(--teal);background:#f2fcf9"><strong style="color:#067a70">EXP #2 · Score exponentials</strong><p class="mono">weights = exp(scores − new_max)</p><p>Converts this tile's logits to <em>unnormalized</em> positive weights.</p></div>
+        <div class="section-divider"></div>
+        <h3>Softmax = numerator / denominator</h3>
+        <div class="details-steps"><div><b>Numerator</b><span class="mono">acc = Σ exp(score−m) · V</span></div><div><b>Denominator</b><span class="mono">l = Σ exp(score−m)</span></div></div>
+        <div class="result" style="margin-top:10px">Final output: O = acc / l</div>
+      </section>
+      <section class="panel">
+        <h2>Shapes at GPU tile size</h2>
+        <table class="side-table" style="margin-top:10px"><thead><tr><th>Tensor</th><th>Example</th><th>GPU tile</th></tr></thead><tbody>
+          <tr><td>Q</td><td>[2, 2]</td><td>[64,128]</td></tr><tr><td>K, V</td><td>[2, 2]</td><td>[64,128]</td></tr><tr><td>scores, weights</td><td>[2, 2]</td><td>[64,64]</td></tr><tr><td>m, l, correction</td><td>[2]</td><td>[64]</td></tr><tr><td>acc, output</td><td>[2, 2]</td><td>[64,128]</td></tr></tbody></table>
+        <div class="footnote">For simplicity, this example handles one Q tile and three KV tiles. A complete attention launch processes all query tiles (often in parallel). Shapes above assume value head dimension equals key head dimension.</div>
+      </section>
+      <section class="panel">
+        <h2>What to look for</h2>
+        <ol class="edu-list">
+          <li>Step through <b>tile 1</b>: the correction factor is zero because there is no history yet.</li>
+          <li>In tiles <b>2 and 3</b>, watch how the row maximum changes and earlier values get rescaled.</li>
+          <li>Observe that <b>weights are not yet normalized</b> before PV.</li>
+          <li>At the end, a single division produces the final attention output.</li>
+        </ol>
+        <div class="footnote">This example uses non-causal, unmasked attention. Causal/padding masks must be applied to scores before row_max, and fully masked query rows need safe handling. The stages are algorithmic, not a cycle-accurate GPU schedule. Production kernels may use exp2, warp reductions, specialized MMA/bDPAS, asynchronous memory movement, and mixed precision.</div>
+      </section>
+    </aside>
+  </div>
+</main>
+<script>
+'use strict';
+// Tiny numeric teaching example; fixed so that each step is reproducible.
+const QUERY = [[1, .5], [.5, 1]];
+const KEY = [[1,0], [0,1], [1.4,.2], [.1,1.8], [2.1,.4], [-.5,1.5]];
+const VALUE = [[1,0], [0,1], [2,1], [0,2], [3,-1], [-1,3]];
+const Bq=2, Bk=2, D=2, scale=1/Math.sqrt(D), numTiles=KEY.length/Bk;
+const clone=x=>x.map(v=>Array.isArray(v)?v.slice():v);
+const dot=(a,b)=>a.reduce((v,x,i)=>v+x*b[i],0);
+const rowMax=m=>m.map(r=>Math.max(...r));
+const rowSum=m=>m.map(r=>r.reduce((x,y)=>x+y,0));
+const matrixMult=(a,b)=>a.map(row=>b[0].map((_,j)=>dot(row,b.map(r=>r[j]))));
+const transpose=m=>m[0].map((_,j)=>m.map(r=>r[j]));
+const multiplyPV=(p,v)=>matrixMult(p,v);
+function calculate(){
+  let m=Array(Bq).fill(-Infinity), l=Array(Bq).fill(0),acc=Array.from({length:Bq},()=>Array(D).fill(0));
+  let tiles=[];
+  for(let t=0;t<numTiles;t++){
+    const k=KEY.slice(t*Bk,(t+1)*Bk),v=VALUE.slice(t*Bk,(t+1)*Bk);
+    const qkProduct=matrixMult(QUERY,transpose(k));
+    const scores=qkProduct.map(row=>row.map(s=>s*scale));
+    const tileMax=rowMax(scores),newMax=m.map((x,i)=>Math.max(x,tileMax[i]));
+    const alpha=m.map((x,i)=>x===-Infinity?0:Math.exp(x-newMax[i]));
+    const weights=scores.map((row,i)=>row.map(s=>Math.exp(s-newMax[i])));
+    const tileExpSum=rowSum(weights);
+    const updatedL=l.map((x,i)=>alpha[i]*x+tileExpSum[i]);
+    const pv=multiplyPV(weights,v);
+    const updatedAcc=acc.map((row,i)=>row.map((x,d)=>alpha[i]*x+pv[i][d]));
+    tiles.push({index:t,k,v,oldMax:clone(m),oldL:clone(l),oldAcc:clone(acc),qkProduct,scores,tileMax,newMax,alpha,weights,tileExpSum,updatedL,pv,updatedAcc});
+    m=newMax;l=updatedL;acc=updatedAcc;
+  }
+  return {tiles,final:acc.map((r,i)=>r.map(x=>x/l[i]))};
+}
+const calc=calculate();
+const STAGES=[
+ {name:'Load tiles',title:'Load current K / V tiles',formula:'Q: [Bq,D]    K, V: [Bk,D]',desc:'Q is loaded once per query block and reused for all three KV tiles. This stage loads the next K and V tile.',keys:['Q','K','V']},
+ {name:'MMA #1 · QK',title:'MMA #1: multiply Q by Kᵀ',formula:'qk_product = Q_tile @ K_tile.T   [Bq,Bk]',desc:'The first matrix multiply forms raw dot products. The softmax scale is applied in the next stage.',keys:['Q','K','QK']},
+ {name:'Scale scores',title:'Scale attention scores',formula:'scores = qk_product / √D   [Bq,Bk]',desc:'Scale the raw QK result by 1/√D. This visualization is non-causal and has no attention mask.',keys:['QK','S']},
+ {name:'Row max',title:'Update the row-wise maximum',formula:'new_max = max(old_max, row_max(scores))',desc:'Track one running maximum per query row for numerically stable online softmax.',keys:['S','M']},
+ {name:'EXP #1',title:'Exponentiate the history correction',formula:'correction = exp(old_max − new_max)',desc:'Rescale previously accumulated numerator and denominator. On the first tile, correction is explicitly initialized to zero.',keys:['A','M']},
+ {name:'EXP #2',title:'Exponentiate scores in this tile',formula:'weights = exp(scores − new_max[:,None])',desc:'Exponentiate current tile scores, relative to their row maxima. These weights are NOT normalized probabilities.',keys:['S','P']},
+ {name:'Sum exp',title:'Update the softmax denominator',formula:'new_sum = correction · old_sum + row_sum(weights)',desc:'Add this tile’s exponentials to the rescaled running denominator.',keys:['P','L']},
+ {name:'MMA #2 · PV',title:'MMA #2: multiply weights by V',formula:'weighted_values = weights @ V   [Bq,D]',desc:'The second matrix multiply computes the current tile’s numerator contribution, before combining it with history.',keys:['P','V','PV']},
+ {name:'Accumulate',title:'Rescale the previous accumulator, then add PV',formula:'previous_acc_scaled = correction[:,None] * old_acc\nnew_acc = previous_acc_scaled + weighted_values',desc:'First multiply the previous output accumulator by the correction factor. Then add the new MMA #2 (PV) result to obtain the updated accumulator.',keys:['PV','ACC','A']}
+];
+const FINAL={name:'Normalize',title:'Normalize and write the output once',formula:'output_tile = output_accumulator / running_exp_sum[:,None]',desc:'After all K/V tiles, divide each query row’s weighted value sum by its softmax denominator, then write O.',keys:['ACC','L','O']};
+const STEPS=numTiles*STAGES.length+1;
+let step=0, timer=null;
+const $=id=>document.getElementById(id);
+const fmt=(x,d=3)=>x===-Infinity?'−∞':Number.isFinite(x)?(Math.abs(x)<.0005?0:x).toFixed(d):'NaN';
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shape=(name)=>({Q:'[Bq, D]',K:'[Bk, D]',V:'[Bk, D]',QK:'[Bq, Bk]',S:'[Bq, Bk]',P:'[Bq, Bk]',M:'[Bq]',A:'[Bq]',L:'[Bq]',PV:'[Bq, D]',ACC:'[Bq, D]',O:'[Bq, D]'})[name];
+const configs={
+ Q:['Q tile','#4263df','Reused across all KV tiles'],K:['K tile','#078b83','Current key tile'],V:['V tile','#078b83','Current value tile'],
+ QK:['qk product','#bb7514','Raw QKᵀ (MMA #1)'],S:['scores','#bb7514','QKᵀ / √D'],P:['weights','#bb7514','Exponentials, not probabilities yet'],
+ M:['new max','#8750c8','Candidate maximum; committed after accumulation'],A:['correction','#8750c8','exp(old_max − new_max)'],L:['running exp sum','#8750c8','Softmax denominator'],
+ PV:['weights @ V','#bb7514','Current tile numerator contribution'],ACC:['output accumulator','#8750c8','Accumulated numerator'],O:['output tile','#118357','Final normalized attention output']
+};
+function curr(){let final=step===STEPS-1;return {final,tile:final?numTiles-1:Math.floor(step/STAGES.length),stage:final?STAGES.length:step%STAGES.length,def:final?FINAL:STAGES[step%STAGES.length]};}
+function getData(key,tile,stage,final){
+ const t=calc.tiles[tile];
+ switch(key){
+  case 'Q':return QUERY;
+  case 'K':return t.k;
+  case 'V':return t.v;
+  case 'QK':return stage>=1?t.qkProduct:null;
+  case 'S':return stage>=2?t.scores:null;
+  case 'P':return stage>=5?t.weights:null;
+  case 'M':return stage>=3||final?t.newMax:t.oldMax;
+  case 'A':return stage>=4||final?t.alpha:null;
+  case 'L':return stage>=6||final?t.updatedL:t.oldL;
+  case 'PV':return stage>=7||final?t.pv:null;
+  case 'ACC':return stage>=8||final?t.updatedAcc:t.oldAcc;
+  case 'O':return final?calc.final:null;
+ }
+}
+function viewMatrix(input){
+ if(input===null)return '<div class="placeholder">not computed yet</div>';
+ let mat=Array.isArray(input[0])?input:input.map(x=>[x]);
+ let cols=mat[0].length;
+ let cells=mat.flat().map(x=>{
+  let shade=x===-Infinity?0:Math.min(.16,Math.abs(x)/5*.12);
+  return `<div class="numcell" style="--cell:rgba(71,104,197,${(.045+shade).toFixed(3)})" title="${esc(x)}">${fmt(x)}</div>`;
+ }).join('');
+ return `<div class="num-matrix" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div>`;
+}
+function renderMatrix(c){
+ const order=['Q','K','V','QK','S','M','A','P','L','PV','ACC','O'];
+ $('matrixGrid').innerHTML=order.map(key=>{
+  let [name,accent,note]=configs[key], active=c.def.keys.includes(key);
+  return `<div class="matrix-card ${active?'active':''}" style="--accent:${accent}" ${active?'aria-current="step"':''}><div class="mhead"><div class="name"><i class="dot"></i>${esc(name)}</div><div class="shape">${esc(shape(key))}</div></div>${viewMatrix(getData(key,c.tile,c.stage,c.final))}<div class="note">${esc(note)}</div></div>`;
+ }).join('');
+}
+function renderState(c){
+ const t=calc.tiles[c.tile],stage=c.stage;
+ const states=[
+  {name:'m · running max',label:'[Bq]',val:stage>=8||c.final?t.newMax:t.oldMax,highlight:stage===8},
+  {name:'l · exp sum',label:'[Bq]',val:stage>=6||c.final?t.updatedL:t.oldL,highlight:stage===6||c.final},
+  {name:'acc · numerator',label:'[Bq, D]',val:stage>=8||c.final?t.updatedAcc:t.oldAcc,highlight:stage===8||c.final}
+ ];
+ $('stateGrid').innerHTML=states.map(s=>`<div class="state-item ${s.highlight?'highlight':''}"><div class="state-title">${s.name}</div><div class="state-shape mono">${s.label}</div><div class="value">${Array.isArray(s.val[0])?s.val.map((r,i)=>'q'+i+': ['+r.map(x=>fmt(x,3)).join(', ')+']').join('\n'):s.val.map((x,i)=>'q'+i+': '+fmt(x,3)).join('\n')}</div></div>`).join('');
+ function table(mx,ls,ac){return `<table class="side-table"><thead><tr><th>row</th><th>m</th><th>l</th><th>acc [D=2]</th></tr></thead><tbody>${mx.map((x,i)=>`<tr><td>q${i}</td><td>${fmt(x,2)}</td><td>${fmt(ls[i],2)}</td><td>[${ac[i].map(y=>fmt(y,2)).join(', ')}]</td></tr>`).join('')}</tbody></table>`;}
+ $('beforeTable').innerHTML=table(t.oldMax,t.oldL,t.oldAcc);
+ $('afterTable').innerHTML=(stage>=8||c.final)?table(t.newMax,t.updatedL,t.updatedAcc):'<p class="small muted">Complete this tile to reveal the final state.</p>';
+}
+const codeLines=[
+ {t:'# Q:[2,2]   K,V:[6,2]   O:[2,2]',ids:[]},
+ {t:'softmax_scale = 1 / sqrt(D)',ids:[]},
+ {t:'for q_tile_idx in range(num_query_tiles):',ids:[]},
+ {t:'    q_tile = load(Q[q_tile_idx])             # [Bq,D]',ids:[0],firstTileOnly:true},
+ {t:'    running_max = full(-inf, [Bq])          # [Bq]',ids:[]},
+ {t:'    running_exp_sum = zeros([Bq])           # [Bq]',ids:[]},
+ {t:'    output_accumulator = zeros([Bq,D])     # [Bq,D]',ids:[]},
+ {t:'    for kv_tile_idx in range(num_kv_tiles):',ids:[0]},
+ {t:'        k = load(K[kv_tile_idx])            # [Bk,D]',ids:[0]},
+ {t:'        v = load(V[kv_tile_idx])            # [Bk,D]',ids:[0]},
+ {t:'',ids:[]},
+ {t:'        qk_product = q_tile @ k.T           # [Bq,Bk] MMA #1',ids:[1],mma:true},
+ {t:'        scores = qk_product * softmax_scale # [Bq,Bk]',ids:[2]},
+ {t:'        tile_max = row_max(scores)          # [Bq]',ids:[3]},
+ {t:'        new_max = max(running_max, tile_max)# [Bq]',ids:[3]},
+ {t:'',ids:[]},
+ {t:'        if kv_tile_idx == 0:',ids:[4]},
+ {t:'            correction = zeros([Bq])       # [Bq]',ids:[4]},
+ {t:'        else:',ids:[4]},
+ {t:'            correction = exp(running_max - new_max) # [Bq]',ids:[4]},
+ {t:'        weights = exp(scores - new_max[:,None])     # [Bq,Bk]',ids:[5]},
+ {t:'',ids:[]},
+ {t:'        tile_exp_sum = row_sum(weights)     # [Bq]',ids:[6]},
+ {t:'        running_exp_sum = (correction * running_exp_sum',ids:[6]},
+ {t:'                           + tile_exp_sum) # [Bq]',ids:[6]},
+ {t:'',ids:[]},
+ {t:'        weighted_values = weights @ v      # [Bq,D] MMA #2',ids:[7],mma:true},
+ {t:'',ids:[]},
+ {t:'        # Rescale previously accumulated PV results',ids:[8]},
+ {t:'        previous_acc_scaled = (',ids:[8]},
+ {t:'            correction[:,None] * output_accumulator',ids:[8]},
+ {t:'        )                                   # [Bq,D]',ids:[8]},
+ {t:'',ids:[]},
+ {t:'        # Add the current PV result to the scaled history',ids:[8]},
+ {t:'        output_accumulator = (',ids:[8]},
+ {t:'            previous_acc_scaled + weighted_values',ids:[8]},
+ {t:'        )                                   # [Bq,D]',ids:[8]},
+ {t:'        running_max = new_max              # [Bq]',ids:[8]},
+ {t:'',ids:[]},
+ {t:'    out = output_accumulator / running_exp_sum[:,None] # [Bq,D]',ids:[9]},
+ {t:'    store(O[q_tile_idx], out)               # [Bq,D]',ids:[9]}
+];
+function renderCode(c){
+ let html=codeLines.map(line=>{
+ let active=line.ids.includes(c.stage) && (!line.firstTileOnly || c.tile===0);
+ let str=esc(line.t).replace(/(#.*)$/,'<span class="cmt">$1</span>');
+ return `<div class="code-line ${active?'active':''} ${line.mma?'mma':''}"><code>${str||' '}</code></div>`;
+ }).join('');
+ $('codePanel').innerHTML=html;
+ const active=$('codePanel').querySelector('.active');
+ if(active){const box=$('codePanel');if(active.offsetTop>box.offsetTop+box.clientHeight || active.offsetTop<box.offsetTop){} }
+}
+function renderTrack(c){
+ $('tileTrack').innerHTML=Array.from({length:numTiles},(_,i)=>{
+ let complete=i<c.tile || (c.final),selected=i===c.tile&&!c.final;
+ return `<button type="button" class="tile ${complete?'complete':''} ${selected?'selected':''}" data-tile="${i}" aria-label="Jump to KV tile ${i+1}"><strong>KV tile ${i+1}</strong><small>Keys ${i*Bk}–${i*Bk+Bk-1}</small><div class="bars">${Array.from({length:STAGES.length},(_,j)=>`<span style="opacity:${i===c.tile&&!c.final&&j>c.stage?'.35':'1'}"></span>`).join('')}</div></button>`;
+ }).join('');
+ $('tileTrack').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stop();step=+b.dataset.tile*STAGES.length;render();}));
+ $('stageGrid').innerHTML=[...STAGES,FINAL].map((s,i)=>{
+ let active=i===c.stage, past=(i<c.stage&&!c.final)||c.final;
+ return `<div class="stage ${active?'active':''} ${past?'past':''}"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${esc(s.name)}</strong></div>`;
+ }).join('');
+}
+function render(){
+ const c=curr();
+ $('stepCounter').textContent=`Step ${step+1} / ${STEPS}`;
+ $('progressFill').style.width=`${step/(STEPS-1)*100}%`;
+ $('nowTag').textContent=c.final?'After all ${numTiles} KV tiles · Final stage':`KV tile ${c.tile+1} / ${numTiles} · Stage ${c.stage+1} / ${STAGES.length}`;
+ $('nowTitle').textContent=c.def.title;
+ $('nowFormula').textContent=c.def.formula;
+ $('nowText').textContent=c.def.desc;
+ $('backBtn').disabled=step===0;
+ $('nextBtn').disabled=step===STEPS-1;
+ $('nextBtn').textContent=step===STEPS-1?'Complete ✓':step===STEPS-2?'Finish →':'Next step →';
+ renderTrack(c);renderMatrix(c);renderState(c);renderCode(c);
+}
+function next(){if(step<STEPS-1){step++;render();}else stop();}
+function stop(){if(timer){clearInterval(timer);timer=null;}$('playBtn').textContent='▶ Play';}
+function play(){if(timer){stop();return;}if(step===STEPS-1){step=0;render();}$('playBtn').textContent='Ⅱ Pause';timer=setInterval(()=>{if(step>=STEPS-1){stop();return;}next();if(step===STEPS-1)stop();},+$('speedSelect').value);}
+$('backBtn').addEventListener('click',()=>{stop();step=Math.max(0,step-1);render();});
+$('nextBtn').addEventListener('click',()=>{stop();next();});
+$('playBtn').addEventListener('click',play);
+$('resetBtn').addEventListener('click',()=>{stop();step=0;render();});
+$('speedSelect').addEventListener('change',()=>{if(timer){stop();play();}});
+$('copyBtn').addEventListener('click',async()=>{const code=codeLines.map(x=>x.t).join('\n');try{await navigator.clipboard.writeText(code);$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy code',1500);}catch(e){const a=document.createElement('textarea');a.value=code;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy code',1500);}});
+document.addEventListener('keydown',e=>{if(e.target.closest('button, select, input, textarea, a'))return;if(e.key==='ArrowRight'){e.preventDefault();stop();next();}else if(e.key==='ArrowLeft'){e.preventDefault();stop();step=Math.max(0,step-1);render();}});
+render();
+</script>
+</body>
+</html>
