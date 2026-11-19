@@ -191,6 +191,7 @@
         <div class="micro-operands" id="microOperands"></div>
         <div class="micro-equation" id="microEquation"></div>
         <div class="micro-snapshot" id="microSnapshot"></div>
+        <p class="micro-note" id="referenceCheck" role="status" aria-live="polite">Checking against direct full-softmax reference…</p>
         <p class="micro-note">Teaching model: non-causal toy tensor shapes with JavaScript FP64 arithmetic; no fully masked rows. The two matrix multiplications are shown as MMA stages, not a cycle-accurate GPU pipeline. Values are rounded only for display.</p>
       </div>
     </div>
@@ -230,6 +231,35 @@ function calculate(){
   return {tiles,final:acc.map((r,i)=>r.map(x=>x/l[i]))};
 }
 const calc=calculate();
+// Independent dense-prefix reference: verify every KV tile's running maximum,
+// denominator, numerator, and the final normalized output. This intentionally
+// DOES NOT reuse the online-softmax recurrence above.
+function verifyAgainstDenseSoftmax(){
+  let worst=0;
+  for(let tile=0; tile<numTiles; tile++){
+    const prefixLength=(tile+1)*Bk;
+    for(let q=0; q<Bq; q++){
+      const logits=KEY.slice(0,prefixLength).map(key=>dot(QUERY[q],key)*scale);
+      const maxLogit=Math.max(...logits);
+      const exponentials=logits.map(score=>Math.exp(score-maxLogit));
+      const denominator=exponentials.reduce((sum,x)=>sum+x,0);
+      const numerator=Array(D).fill(0);
+      for(let k=0; k<prefixLength; k++){
+        for(let d=0; d<D; d++) numerator[d]+=exponentials[k]*VALUE[k][d];
+      }
+      const observed=calc.tiles[tile];
+      worst=Math.max(worst,Math.abs(observed.newMax[q]-maxLogit),Math.abs(observed.updatedL[q]-denominator));
+      for(let d=0; d<D; d++){
+        worst=Math.max(worst,Math.abs(observed.updatedAcc[q][d]-numerator[d]));
+        if(tile===numTiles-1){
+          worst=Math.max(worst,Math.abs(calc.final[q][d]-numerator[d]/denominator));
+        }
+      }
+    }
+  }
+  return {pass:Number.isFinite(worst)&&worst<1e-12,error:worst};
+}
+const numericalAudit=verifyAgainstDenseSoftmax();
 const STAGES=[
  {name:'Load tiles',title:'Load current K / V tiles',formula:'Q: [Bq,D]    K, V: [Bk,D]',desc:'Q is loaded once per query block and reused for all three KV tiles. This stage loads the next K and V tile.',keys:['Q','K','V']},
  {name:'MMA #1 · QK',title:'MMA #1: multiply Q by Kᵀ',formula:'qk_product = Q_tile @ K_tile.T   [Bq,Bk]',desc:'The first matrix multiply forms raw dot products. The softmax scale is applied in the next stage.',keys:['Q','K','QK']},
@@ -388,7 +418,7 @@ document.addEventListener('keydown',e=>{if(e.target.closest('button, select, inp
 render();
 // Independent operation-level microscope; shares the exact numerical trace with the main stepper.
 const MICRO_STAGES = [
- {name:'HBM load',short:'Load',code:'q_tile = load(Q[q_idx])      # [Bq,D] (once)\nk = load(K[kv_idx])          # [Bk,D]\nv = load(V[kv_idx])          # [Bk,D]',explain:'Query is reused across KV blocks. The next K and V tile are loaded; all subsequent operations use on-chip tile data.'},
+ {name:'HBM load',short:'Load',code:'q_tile = load(Q[q_idx])     # [Bq,D], outside KV loop\nk = load(K[kv_idx])         # [Bk,D], current KV tile\nv = load(V[kv_idx])         # [Bk,D], current KV tile',explain:'Query is reused across KV blocks. The next K and V tile are loaded; all subsequent operations use on-chip tile data.'},
  {name:'MMA #1 · QKᵀ',short:'QK MMA',code:'qk_product = q_tile @ k.T    # [Bq,Bk]',explain:'Each query row takes a dot product with each key row. This is the first matrix multiplication.'},
  {name:'Softmax scale',short:'Scale',code:'scores = qk_product * (1/sqrt(D))  # [Bq,Bk]',explain:'Scale the dot products before the softmax. Masking would happen here for causal attention.'},
  {name:'Row maximum',short:'Row max',code:'tile_max = row_max(scores)    # [Bq]',explain:'Reduce across the keys in this KV block to obtain one maximum per query row.'},
@@ -485,7 +515,11 @@ function microRender(){
  $('microFlow').innerHTML=MICRO_FLOW.map((n,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node group-${MICRO_FLOW_GROUPS[i]} ${i===(done?13:op)?'active':''}">${esc(n)}</span>`).join('');
   const stateAfter={m:done||op>=12?newm:oldm,l:done||op>=8?t.updatedL[r]:oldL,acc:done||op>=11?t.updatedAcc[r]:oldAcc};
  $('microSnapshot').innerHTML=`<div class="micro-snap"><b>Entering KV block ${tile+1}</b><pre>m: ${fmt(oldm,4)}\nl: ${fmt(oldL,4)}\nacc: ${microVec(oldAcc)}</pre></div><div class="micro-snap"><b>Current persisted state</b><pre>m: ${fmt(stateAfter.m,4)}\nl: ${fmt(stateAfter.l,4)}\nacc: ${microVec(stateAfter.acc)}</pre></div>`;
- $('microCounter').textContent=`${microStep+1} / ${MICRO_COUNT}`;
+ $('referenceCheck').textContent=numericalAudit.pass
+    ? `✓ Dense-softmax reference check passed: all ${numTiles} KV blocks, ${Bq} query rows, max absolute error ${numericalAudit.error.toExponential(2)}.`
+    : `⚠ Dense-softmax reference check FAILED (max absolute error ${numericalAudit.error.toExponential(2)}).`;
+  $('referenceCheck').style.color=numericalAudit.pass?'#067a70':'#bd3646';
+  $('microCounter').textContent=`${microStep+1} / ${MICRO_COUNT}`;
  $('microProgress').style.width=`${100*microStep/(MICRO_COUNT-1)}%`;
  $('microPrev').disabled=microStep===0;
  $('microNext').disabled=done;
