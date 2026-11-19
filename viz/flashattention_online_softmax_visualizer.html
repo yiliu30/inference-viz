@@ -19,6 +19,48 @@
 .code{font:12px/1.85 ui-monospace,SFMono-Regular,Consolas,monospace;background:#0f1a2f;color:#bbcbe4;padding:11px 0;border-radius:12px;overflow-x:auto;counter-reset:line}.code-line{display:block;white-space:pre;padding:0 13px 0 12px;min-height:22px;border-left:3px solid transparent;position:relative}.code-line.active{background:#32486a;color:#fff;border-left-color:#7ddcd5}.code-line.mma{background:rgba(41,173,158,.11);border-left-color:#37a897}.code-line.mma.active{background:#245664;border-left-color:#7ff5d9}.code-line code{white-space:pre}.code-line .cmt{color:#7c98ad}.code-line .fun{color:#8edacb}.code-line .tensor{color:#b9b5ff}.code-line .kw{color:#efb481}.code-line .shape-comment{color:#7c9fbc}.code-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
 .fact{border-left:3px solid var(--purple);background:#faf7ff;padding:10px 12px;border-radius:0 8px 8px 0;margin-top:10px}.fact strong{color:#633b97}.fact p{margin:2px 0 0;font-size:12px;color:#665d77}.edu-list{padding-left:17px;color:#4f5f78;font-size:12.5px;margin:8px 0}.edu-list li{margin:6px 0}.section-divider{height:1px;background:#e4e9f2;margin:16px 0}.details-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}.details-steps div{padding:9px;border-radius:9px;background:#f8faff;border:1px solid #e3e9f4}.details-steps b{display:block;font-size:12px}.details-steps span{font-size:11px;color:#748198}.result{padding:12px 14px;border-radius:9px;background:#eefaf2;border:1px solid #b2e2c5;color:#17663d;font-weight:650}.tag{display:inline-block;border-radius:6px;padding:3px 6px;font:700 10px ui-monospace,monospace}.tag.amber{background:#fff3d7;color:#9c6400}.tag.teal{background:#daf6ef;color:#067a70}.help{cursor:help;border-bottom:1px dotted currentColor}
 @media(max-width:1100px){.layout{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr;gap:16px}.right .panel{margin:0}.right .panel:first-child{grid-column:1/-1}}@media(max-width:750px){.shell{padding:10px}.hero{padding:22px 18px;border-radius:16px}.panel{padding:15px}.matrix-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.state-grid{grid-template-columns:1fr 1fr}.right{display:block}.right .panel{margin-bottom:16px}.old-new{grid-template-columns:1fr}.stage-grid{grid-template-columns:repeat(5,1fr)}.stage{padding:7px 3px;min-height:60px}.stage strong{font-size:10px}.tile small{font-size:9px}.num-matrix .numcell{font-size:11px;min-height:30px}.control-bar{gap:6px}.btn{padding:8px 9px}}
+/* Block-by-block kernel execution microscope */
+.breakdown{margin-top:20px;padding:24px}
+.breakdown .kicker{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#5873b5;margin:0 0 4px}
+.breakdown h2{font-size:22px;margin:0 0 6px}
+.breakdown .intro{max-width:980px;color:#61718a;margin:0 0 18px}
+.micro-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.micro-pct{height:6px;background:#ecf0f7;border-radius:9px;overflow:hidden;margin-bottom:15px}.micro-pct div{height:100%;width:0;background:linear-gradient(90deg,#4263df,#0f9d83);transition:width .15s}
+.micro-layout{display:grid;grid-template-columns:minmax(360px,.95fr) minmax(420px,1.3fr);gap:17px;align-items:start}
+.micro-timeline{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.micro-tile{border:1px solid #dfe6f1;border-radius:12px;overflow:hidden;min-width:0;background:#fbfcff}
+.micro-tile header{padding:10px;background:#eef3ff;border-bottom:1px solid #dfe6f1}
+.micro-tile header strong{font-size:12px;display:block;color:#284277}.micro-tile header small{font-size:10px;color:#6880a1}
+.micro-step{display:flex;gap:5px;align-items:center;border:0;border-bottom:1px solid #edf1f7;width:100%;padding:7px 6px;background:white;color:#68778f;font-size:10.5px;text-align:left;min-height:34px}
+.micro-step:last-child{border-bottom:0}.micro-step .micro-no{width:17px;color:#a1aec2;font:10px ui-monospace,monospace;flex-shrink:0}
+.micro-step.done{background:#eefaf5;color:#28725b}.micro-step.done .micro-no{color:#1c9476}
+.micro-step.active{background:#dce9ff;color:#243fad;box-shadow:inset 3px 0 #4568df;font-weight:800}
+.micro-step:hover:not(.active){background:#eef3fb}
+.micro-end{grid-column:1/-1;text-align:center;border:1px solid #c9dfd4;border-radius:9px;background:#f3fbf6;color:#19835a;font-weight:800;padding:8px;font-size:12px}
+.micro-end.active{background:#dff6e9;box-shadow:inset 0 0 0 2px #24a274}
+.micro-workspace{border:1px solid #dfe7f4;border-radius:13px;padding:17px;min-width:0;background:linear-gradient(145deg,#fff,#f9fbff)}
+.micro-crumb{color:#63789f;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.micro-workspace h3{margin:6px 0 9px;font-size:20px;line-height:1.25}
+.micro-pseudocode{background:#112039;border-radius:8px;color:#e2f0ff;padding:12px;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;margin:10px 0;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.micro-flow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:12px 0;padding:8px;border:1px solid #e4eafa;border-radius:9px;background:#fff}
+.micro-flow .node{border:1px solid #dce4f2;color:#7887a2;background:#f6f8fc;border-radius:5px;font:700 10px ui-monospace,monospace;padding:5px}
+.micro-flow .node.active{border-color:#3c67db;background:#e9efff;color:#2445b2;box-shadow:inset 0 0 0 1px #5579ea}
+.micro-flow .arrow{color:#9eb0cc;font-size:10px}
+.micro-desc{font-size:12px;color:#5c6e87;margin:0 0 10px}
+.micro-operands{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.micro-operand{background:#fff;border:1px solid #e0e8f5;border-radius:9px;padding:9px;min-width:0}
+.micro-operand.result{background:#f1faf5;border-color:#abdaca;color:#17663d}
+.micro-operand .m-title{font-size:11px;font-weight:750;color:#394f70;overflow-wrap:anywhere}
+.micro-operand .m-shape{font:10px ui-monospace,monospace;color:#8a99ae;margin-bottom:5px}
+.micro-operand .m-values{font:12px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#253d5c}
+.micro-equation{background:#f0f5ff;border:1px solid #d4e1fc;color:#2d4776;border-radius:8px;padding:11px;font:12px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.micro-snapshot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.micro-snap{background:#fff;border:1px solid #e0e7f2;border-radius:8px;padding:9px;min-width:0}
+.micro-snap b{font-size:11px;color:#405675}.micro-snap pre{font:11px/1.5 ui-monospace,monospace;color:#526480;margin:5px 0 0;white-space:pre-wrap}
+.micro-note{font-size:11px;color:#77859a;margin:10px 0 0}
+@media(max-width:1120px){.micro-layout{grid-template-columns:1fr}.micro-timeline{max-width:800px}}
+@media(max-width:610px){.breakdown{padding:14px}.micro-timeline{gap:4px}.micro-step{font-size:9px;padding:7px 4px}.micro-step .micro-no{display:none}.micro-tile header{padding:6px}.micro-tile header strong{font-size:11px}.micro-tile header small{font-size:9px}.micro-workspace{padding:12px}.micro-operands{grid-template-columns:1fr 1fr}.micro-snapshot{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -99,6 +141,37 @@
       </section>
     </aside>
   </div>
+  <section class="panel breakdown" id="execution-breakdown" aria-label="Kernel execution breakdown">
+    <p class="kicker">04 / New learning section</p>
+    <div class="panel-head">
+      <div><h2>Block-by-block kernel execution</h2><p class="intro">One query tile, three KV blocks, and <b>every operation as its own click-to-inspect step.</b> Follow actual numbers through QK MMA, max, both EXPs, row sum, PV MMA, history rescaling, accumulation, and final normalization.</p></div>
+      <span class="tag teal">40 micro-steps · single query head</span>
+    </div>
+    <div class="micro-controls" aria-label="Micro-step playback">
+      <button type="button" class="btn" id="microPrev">← Previous</button>
+      <button type="button" class="btn primary" id="microNext">Next operation →</button>
+      <button type="button" class="btn" id="microPlay">▶ Play</button>
+      <button type="button" class="btn" id="microReset">↺ Reset</button>
+      <label class="small muted" for="microRow">Inspect query row</label>
+      <select id="microRow" aria-label="Choose query row"><option value="0">q0</option><option value="1">q1</option></select>
+      <span id="microCounter" class="small mono muted" aria-live="polite">1 / 40</span>
+    </div>
+    <div class="micro-pct"><div id="microProgress"></div></div>
+    <div class="micro-layout">
+      <div class="micro-timeline" id="microTimeline" aria-label="Operations grouped by KV block"></div>
+      <div class="micro-workspace">
+        <div class="micro-crumb" id="microCrumb"></div>
+        <h3 id="microTitle">Load inputs</h3>
+        <pre class="micro-pseudocode" id="microCode"></pre>
+        <div class="micro-flow" id="microFlow" aria-label="Dataflow operation sequence"></div>
+        <p class="micro-desc" id="microDesc"></p>
+        <div class="micro-operands" id="microOperands"></div>
+        <div class="micro-equation" id="microEquation"></div>
+        <div class="micro-snapshot" id="microSnapshot"></div>
+        <p class="micro-note">Teaching model: non-causal toy tensor shapes with JavaScript FP64 arithmetic; no fully masked rows. The two matrix multiplications are shown as MMA stages, not a cycle-accurate GPU pipeline. Values are rounded only for display.</p>
+      </div>
+    </div>
+  </section>
 </main>
 <script>
 'use strict';
@@ -293,6 +366,78 @@ $('speedSelect').addEventListener('change',()=>{if(timer){stop();play();}});
 $('copyBtn').addEventListener('click',async()=>{const code=codeLines.map(x=>x.t).join('\n');try{await navigator.clipboard.writeText(code);$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy code',1500);}catch(e){const a=document.createElement('textarea');a.value=code;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy code',1500);}});
 document.addEventListener('keydown',e=>{if(e.target.closest('button, select, input, textarea, a'))return;if(e.key==='ArrowRight'){e.preventDefault();stop();next();}else if(e.key==='ArrowLeft'){e.preventDefault();stop();step=Math.max(0,step-1);render();}});
 render();
+// Independent operation-level microscope; shares the exact numerical trace with the main stepper.
+const MICRO_STAGES = [
+ {name:'HBM load',short:'Load',code:'q_tile = load(Q[q_idx])      # [Bq,D] (once)\nk = load(K[kv_idx])          # [Bk,D]\nv = load(V[kv_idx])          # [Bk,D]',explain:'Query is reused across KV blocks. The next K and V tile are loaded; all subsequent operations use on-chip tile data.'},
+ {name:'MMA #1 · QKᵀ',short:'QK MMA',code:'qk_product = q_tile @ k.T    # [Bq,Bk]',explain:'Each query row takes a dot product with each key row. This is the first matrix multiplication.'},
+ {name:'Softmax scale',short:'Scale',code:'scores = qk_product * (1/sqrt(D))  # [Bq,Bk]',explain:'Scale the dot products before the softmax. Masking would happen here for causal attention.'},
+ {name:'Row maximum',short:'Row max',code:'tile_max = row_max(scores)    # [Bq]',explain:'Reduce across the keys in this KV block to obtain one maximum per query row.'},
+ {name:'Update maximum',short:'New max',code:'new_max = max(running_max, tile_max)  # [Bq]',explain:'Compare the current tile maximum with the old maximum. The new maximum defines the exponent scale for this tile.'},
+ {name:'EXP #1 · History correction',short:'EXP history',code:'correction = exp(running_max - new_max)   # [Bq]\n# first KV tile: correction = 0, no history',explain:'Correct the scale of the previous denominator and numerator. For the first KV block, correction is zero to avoid exp(−∞ − −∞).'},
+ {name:'EXP #2 · Current scores',short:'EXP scores',code:'weights = exp(scores - new_max[:,None])  # [Bq,Bk]',explain:'Current scores become nonnegative, unnormalized softmax weights. Do not divide by the running sum yet.'},
+ {name:'Row sum of EXP',short:'Row sum',code:'tile_exp_sum = row_sum(weights)  # [Bq]',explain:'Reduce exponentials over the keys of the current block, independently for each query row.'},
+ {name:'Update denominator',short:'Update l',code:'running_exp_sum = correction * old_exp_sum + tile_exp_sum  # [Bq]',explain:'Combine the rescaled old denominator with this tile’s exponential sum.'},
+ {name:'MMA #2 · PV',short:'PV MMA',code:'pv_result = weights @ v    # [Bq,D]',explain:'MMA #2 multiplies the UNNORMALIZED weights with the V tile, producing this KV block’s numerator contribution.'},
+ {name:'Rescale previous accumulator',short:'Rescale acc',code:'previous_acc_scaled = correction[:,None] * old_acc  # [Bq,D]',explain:'Multiply the previous output accumulator by the same softmax correction factor. Do not replace it with PV.'},
+ {name:'Add current PV contribution',short:'Add PV',code:'output_accumulator = previous_acc_scaled + pv_result  # [Bq,D]',explain:'Accumulate both terms: corrected history PLUS new PV. The numerator now covers all processed KV blocks.'},
+ {name:'Commit running maximum',short:'Commit max',code:'running_max = new_max    # [Bq]',explain:'Commit this block’s maximum. The updated m, l, and accumulator persist into the next KV block.'}
+];
+const MICRO_LAST={name:'Normalize and store',short:'Normalize',code:'output_tile = output_accumulator / running_exp_sum[:,None]  # [Bq,D]\nstore(O[q_idx], output_tile)    # [Bq,D]',explain:'After every KV block has contributed, divide numerator by denominator and store the final attention output once.'};
+const MICRO_COUNT=MICRO_STAGES.length*numTiles+1;
+const MICRO_FLOW=['HBM load','QK MMA','Scale','Row max','New max','EXP history','EXP scores','Row sum','Update l','PV MMA','Rescale acc','Add PV','Commit max','Normalize'];
+let microStep=0,microRow=0,microTimer=null;
+const microVec=xs=>'['+xs.map(x=>fmt(x,4)).join(', ')+']';
+function microRender(){
+ const done=microStep===MICRO_COUNT-1, tile=done?numTiles-1:Math.floor(microStep/MICRO_STAGES.length);
+ const op=done?MICRO_STAGES.length:microStep%MICRO_STAGES.length;
+ const t=calc.tiles[tile],r=microRow,stage=done?MICRO_LAST:MICRO_STAGES[op];
+ const oldm=t.oldMax[r],newm=t.newMax[r],a=t.alpha[r],s=t.scores[r],p=t.weights[r];
+ const oldL=t.oldL[r],oldAcc=t.oldAcc[r],scaled=oldAcc.map(x=>a*x);
+ const vals={};
+ let cards=[], equation='';
+ const card=(name,shape,value,result=false)=>cards.push({name,shape,value,result});
+ if(done){card('Final accumulator','[D]',t.updatedAcc[r]);card('Final denominator','scalar',[t.updatedL[r]]);card('O[q] · normalized','[D]',calc.final[r],true);equation=`O[q${r}] = ${microVec(t.updatedAcc[r])} / ${fmt(t.updatedL[r],4)}\n       = ${microVec(calc.final[r])}`;}
+ else switch(op){
+ case 0:card('Q[q] · reused','[D]',QUERY[r]);card('K block','[Bk,D]',t.k);card('V block','[Bk,D]',t.v,true);equation=`K keys: ${tile*Bk}–${tile*Bk+Bk-1}; V rows: ${tile*Bk}–${tile*Bk+Bk-1}.\nQ stays the same across all ${numTiles} KV blocks.`;break;
+ case 1:card('Q[q]','[D]',QUERY[r]);card('K tile','[Bk,D]',t.k);card('QK raw result','[Bk]',t.qkProduct[r],true);equation=`q${r} @ K_blockᵀ = ${microVec(t.qkProduct[r])}`;break;
+ case 2:card('QK raw','[Bk]',t.qkProduct[r]);card('Scale = 1/√D','scalar',[scale]);card('Scores','[Bk]',s,true);equation=`scores[q${r}] = ${microVec(t.qkProduct[r])} × ${fmt(scale,4)}\n            = ${microVec(s)}`;break;
+ case 3:card('Scores for q','[Bk]',s);card('tile_max','scalar',[t.tileMax[r]],true);equation=`tile_max[q${r}] = max(${s.map(x=>fmt(x,4)).join(', ')}) = ${fmt(t.tileMax[r],4)}`;break;
+ case 4:card('Previous max','scalar',[oldm]);card('Current tile max','scalar',[t.tileMax[r]]);card('New max','scalar',[newm],true);equation=`new_max[q${r}] = max(${fmt(oldm,4)}, ${fmt(t.tileMax[r],4)}) = ${fmt(newm,4)}`;break;
+ case 5:card('Old max','scalar',[oldm]);card('New max','scalar',[newm]);card('Correction α','scalar',[a],true);equation=tile===0?`No history in tile 1: correction[q${r}] = 0 (avoid exp(−∞ − −∞)).`:`α[q${r}] = exp(${fmt(oldm,4)} − ${fmt(newm,4)}) = ${fmt(a,4)}`;break;
+ case 6:card('Scores','[Bk]',s);card('New max','scalar',[newm]);card('EXP weights','[Bk]',p,true);equation=`weights[q${r}] = exp(${microVec(s)} − ${fmt(newm,4)})\n               = ${microVec(p)}  (unnormalized)`;break;
+ case 7:card('EXP weights','[Bk]',p);card('Tile exp sum','scalar',[t.tileExpSum[r]],true);equation=`tile_exp_sum[q${r}] = ${p.map(x=>fmt(x,4)).join(' + ')} = ${fmt(t.tileExpSum[r],4)}`;break;
+ case 8:card('Rescaled old sum','scalar',[a*oldL]);card('Current tile exp sum','scalar',[t.tileExpSum[r]]);card('New running sum','scalar',[t.updatedL[r]],true);equation=`new_l[q${r}] = ${fmt(a,4)} × ${fmt(oldL,4)} + ${fmt(t.tileExpSum[r],4)}\n           = ${fmt(t.updatedL[r],4)}`;break;
+ case 9:card('Weights','[Bk]',p);card('V block','[Bk,D]',t.v);card('New PV result','[D]',t.pv[r],true);equation=`pv_result[q${r}] = weights[q${r}] @ V_block = ${microVec(t.pv[r])}`;break;
+ case 10:card('Old accumulator','[D]',oldAcc);card('Correction α','scalar',[a]);card('Rescaled history','[D]',scaled,true);equation=`previous_acc_scaled[q${r}] = ${fmt(a,4)} × ${microVec(oldAcc)}\n                         = ${microVec(scaled)}`;break;
+ case 11:card('Rescaled history','[D]',scaled);card('New PV result','[D]',t.pv[r]);card('New accumulator','[D]',t.updatedAcc[r],true);equation=`new_acc[q${r}] = ${microVec(scaled)} + ${microVec(t.pv[r])}\n           = ${microVec(t.updatedAcc[r])}`;break;
+ case 12:card('Candidate new max','scalar',[newm]);card('Updated sum','scalar',[t.updatedL[r]]);card('Updated numerator','[D]',t.updatedAcc[r],true);equation=`Commit m = ${fmt(newm,4)}, l = ${fmt(t.updatedL[r],4)}, acc = ${microVec(t.updatedAcc[r])}\n${tile+1<numTiles?`These values become the old state for KV block ${tile+2}.`:`All ${numTiles} KV blocks have finished; normalize O = acc / l next.`}`;break;
+ }
+ $('microCrumb').textContent=done?`Q block 1 · All ${numTiles} KV blocks complete · Final output`:`Q block 1 · KV block ${tile+1}/${numTiles} · Operation ${op+1}/${MICRO_STAGES.length}`;
+ $('microTitle').textContent=stage.name;
+ $('microCode').textContent=stage.code;
+ $('microDesc').textContent=stage.explain;
+ $('microEquation').textContent=equation;
+ $('microOperands').innerHTML=cards.map(c=>`<div class="micro-operand ${c.result?'result':''}"><div class="m-title">${esc(c.name)}</div><div class="m-shape">${esc(c.shape)}</div><div class="m-values">${Array.isArray(c.value[0])?c.value.map(microVec).join('\n'):microVec(c.value)}</div></div>`).join('');
+ $('microFlow').innerHTML=MICRO_FLOW.map((n,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node ${i===(done?13:op)?'active':''}">${esc(n)}</span>`).join('');
+  const stateAfter={m:done||op>=12?newm:oldm,l:done||op>=8?t.updatedL[r]:oldL,acc:done||op>=11?t.updatedAcc[r]:oldAcc};
+ $('microSnapshot').innerHTML=`<div class="micro-snap"><b>Entering KV block ${tile+1}</b><pre>m: ${fmt(oldm,4)}\nl: ${fmt(oldL,4)}\nacc: ${microVec(oldAcc)}</pre></div><div class="micro-snap"><b>Current persisted state</b><pre>m: ${fmt(stateAfter.m,4)}\nl: ${fmt(stateAfter.l,4)}\nacc: ${microVec(stateAfter.acc)}</pre></div>`;
+ $('microCounter').textContent=`${microStep+1} / ${MICRO_COUNT}`;
+ $('microProgress').style.width=`${100*microStep/(MICRO_COUNT-1)}%`;
+ $('microPrev').disabled=microStep===0;
+ $('microNext').disabled=done;
+ $('microNext').textContent=done?'Complete ✓':microStep===MICRO_COUNT-2?'Normalize →':'Next operation →';
+ $('microTimeline').innerHTML=Array.from({length:numTiles},(_,b)=>`<div class="micro-tile"><header><strong>KV block ${b+1}</strong><small>K/V rows ${b*Bk}–${b*Bk+Bk-1}</small></header>${MICRO_STAGES.map((s,i)=>{const idx=b*MICRO_STAGES.length+i;return `<button type="button" data-micro="${idx}" class="micro-step ${idx===microStep?'active':idx<microStep?'done':''}" ${idx===microStep?'aria-current="step"':''}><span class="micro-no">${String(i+1).padStart(2,'0')}</span>${esc(s.short)}</button>`}).join('')}</div>`).join('')+`<button type="button" class="micro-end ${done?'active':''}" data-micro="${MICRO_COUNT-1}">Final: Normalize O = acc / l → HBM output</button>`;
+ $('microTimeline').querySelectorAll('[data-micro]').forEach(b=>b.addEventListener('click',()=>{microStop();microStep=Number(b.dataset.micro);microRender();}));
+}
+function microStop(){if(microTimer!==null){clearInterval(microTimer);microTimer=null;}$('microPlay').textContent='▶ Play';}
+function microAdvance(){if(microStep<MICRO_COUNT-1){microStep++;microRender();}else microStop();}
+$('microPrev').addEventListener('click',()=>{microStop();microStep=Math.max(0,microStep-1);microRender();});
+$('microNext').addEventListener('click',()=>{microStop();microAdvance();});
+$('microReset').addEventListener('click',()=>{microStop();microStep=0;microRender();});
+$('microRow').addEventListener('change',()=>{microRow=Number($('microRow').value);microRender();});
+$('microPlay').addEventListener('click',()=>{if(microTimer!==null){microStop();return;}if(microStep===MICRO_COUNT-1)microStep=0;microRender();$('microPlay').textContent='Ⅱ Pause';microTimer=setInterval(()=>{microAdvance();if(microStep===MICRO_COUNT-1)microStop();},1200);});
+microRender();
+
 </script>
 </body>
 </html>
