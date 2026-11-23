@@ -104,10 +104,6 @@
   "joint_matrix_debug.html": [
     "GPU Kernels"
   ],
-  "kv_spatial_tiling_visualizer.html": [
-    "Attention",
-    "Sparse Attention"
-  ],
   "mxattention_core_idea_with_glossary.html": [
     "Attention",
     "Quantization"
@@ -118,10 +114,6 @@
   "nvidia_cp_async_vs_intel_xe_prefetch_v2.html": [
     "GPU Kernels",
     "Memory"
-  ],
-  "q_spatial_tiling_visualizer.html": [
-    "Attention",
-    "Sparse Attention"
   ],
   "quant-error.html": [
     "Quantization"
@@ -146,6 +138,10 @@
     "Memory"
   ],
   "Sparse-Attn-Video.html": [
+    "Attention",
+    "Sparse Attention"
+  ],
+  "spatial_tiling_q_kv_visualizer.html": [
     "Attention",
     "Sparse Attention"
   ],
