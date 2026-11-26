@@ -93,6 +93,12 @@
   "intel_xe_cute_gemm_shape_visualizer.html": [
     "GPU Kernels"
   ],
+  "intel_xe_stall_atlas.html": [
+    "GPU Architecture",
+    "GPU Kernels",
+    "Performance",
+    "Attention"
+  ],
   "intel_xe_stall_counter_visualizer (3).html": [
     "GPU Architecture",
     "Performance"
