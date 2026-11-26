@@ -65,7 +65,7 @@ Real screenshots from the interactive pages. Click any preview to launch the liv
 
 ## Browse by topic
 
-Choose a topic below, or [view all 47 visualizations in the live, tag-filterable gallery](https://yiliu30.github.io/viz/).
+Choose a topic below, or [view all 48 visualizations in the live, tag-filterable gallery](https://yiliu30.github.io/viz/).
 
 ### Attention & sparsity
 
@@ -123,6 +123,7 @@ Follow kernel optimization from execution layout through profiling and performan
 | **Intel Xe CuTe GEMM Shape Visualizer** | [Open demo](https://yiliu30.github.io/viz/intel_xe_cute_gemm_shape_visualizer.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_cute_gemm_shape_visualizer.html) |
 | **Intel Xe CuTe: Beginner Tutorial** | [Open demo](https://yiliu30.github.io/viz/intel_xe_cute_beginner_tutorial_audited.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_cute_beginner_tutorial_audited.html) |
 | **Intel EU/XVE Stall Counter Explorer** | [Open demo](https://yiliu30.github.io/viz/intel_xe_stall_counter_visualizer%20(3).html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_stall_counter_visualizer%20(3).html) |
+| **Intel Xe GPU Instruction Flow & Stall Atlas** | [Open demo](https://yiliu30.github.io/viz/intel_xe_stall_atlas.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/intel_xe_stall_atlas.html) |
 | **NVIDIA cp.async vs Intel Xe Prefetch** | [Open demo](https://yiliu30.github.io/viz/nvidia_cp_async_vs_intel_xe_prefetch_v2.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/nvidia_cp_async_vs_intel_xe_prefetch_v2.html) |
 | **GEMM Thread Ownership** | [Open demo](https://yiliu30.github.io/viz/step1_thread_ownership.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/step1_thread_ownership.html) |
 | **XPU joint_matrix Debug Journey** | [Open demo](https://yiliu30.github.io/viz/joint_matrix_debug.html) | [HTML](https://github.com/yiliu30/inference-viz/blob/main/viz/joint_matrix_debug.html) |
